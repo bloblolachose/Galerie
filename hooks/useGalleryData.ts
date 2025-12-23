@@ -162,16 +162,24 @@ export function useActiveExhibition() {
         };
 
         fetchActive();
-        // Polling or Subscription? Subscription is better.
+
+        // 1. Subscribe to Realtime changes (Instant)
         const channel = supabase
             .channel('active_exhibition')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'exhibitions' }, () => {
-                // Ideally filter for is_active=true, but hard to know if the ID changed. Just refetch.
                 fetchActive();
             })
             .subscribe();
 
-        return () => { supabase.removeChannel(channel); };
+        // 2. Add Polling Fallback (Every 10 seconds) - Guarantees update even if socket drops
+        const interval = setInterval(() => {
+            fetchActive();
+        }, 10000);
+
+        return () => {
+            supabase.removeChannel(channel);
+            clearInterval(interval);
+        };
     }, [version]);
 
     return exhibition as (Exhibition & { artworks: Artwork[] }) | null;
