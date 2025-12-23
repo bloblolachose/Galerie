@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import { useExhibition, useAllArtworks } from "@/hooks/useGalleryData";
 import { useAdminActions } from "@/hooks/useAdminActions";
 import { Artwork } from "@/types";
