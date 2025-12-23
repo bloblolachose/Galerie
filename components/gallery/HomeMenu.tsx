@@ -24,10 +24,10 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
 
     return (
         <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            initial={{ opacity: 0, scale: 0.98 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.98 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
             className="fixed inset-0 z-50 bg-white/95 backdrop-blur-xl overflow-y-auto"
         >
             {/* Close Button */}
@@ -97,6 +97,7 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
                                     <img
                                         src={artwork.imageUrl}
                                         alt={artwork.title}
+                                        loading="lazy"
                                         className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                     />
                                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
