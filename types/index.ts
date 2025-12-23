@@ -20,6 +20,8 @@ export interface Exhibition {
   isActive: boolean; // Only one exhibition can be active
   artworkIds: string[]; // Order matters
   createdAt: number;
+  artistBio?: string;
+  artistPhotoUrl?: string;
 }
 
 export interface AppSettings {
