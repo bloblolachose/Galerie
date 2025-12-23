@@ -199,7 +199,11 @@ export function ArtistManager({ artists, artworks = [], onUpdate, onUploadImage,
                                             const url = await onUploadImage(file);
                                             setTempArtist(prev => ({ ...prev, photoUrl: url }));
                                         } catch (err) {
-                                            alert("Upload failed");
+                                            console.error("Upload failed details:", err);
+                                            alert("Upload failed. Check console for details.");
+                                        } finally {
+                                            // Reset input so same file can be selected again
+                                            e.target.value = '';
                                         }
                                     }
                                 }}
