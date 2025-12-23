@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
-    const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat();
+    const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat() as any;
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -54,7 +54,7 @@ export function ChatWidget() {
                                     <p>Welcome! Ask me anything about the current exhibition or artworks.</p>
                                 </div>
                             )}
-                            {messages.map(m => (
+                            {messages.map((m: any) => (
                                 <div
                                     key={m.id}
                                     className={`flex ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}

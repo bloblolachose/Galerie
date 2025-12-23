@@ -54,5 +54,5 @@ INSTRUCTIONS:
         messages,
     });
 
-    return result.toDataStreamResponse();
+    return result.toTextStreamResponse();
 }
