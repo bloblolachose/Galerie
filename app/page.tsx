@@ -165,7 +165,7 @@ export default function GalleryPage() {
       {/* Footer / Metadata - Minimalist */}
       {/* Hide footer in expanded mode for full immersion */}
       <div className={cn(
-        "flex-shrink-0 h-24 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 relative z-30 shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)] transition-transform duration-500",
+        "flex-shrink-0 pt-6 pb-12 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 relative z-30 shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)] transition-transform duration-500",
         isExpanded ? "translate-y-full" : "translate-y-0"
       )}>
         <div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
