@@ -78,7 +78,7 @@ export default function GalleryPage() {
   };
 
   return (
-    <div className="relative h-screen w-screen bg-background text-foreground overflow-hidden flex flex-col font-sans">
+    <div className="fixed inset-0 w-full h-full bg-background text-foreground overflow-hidden flex flex-col font-sans">
       {/* Main Image Area */}
       <div className="flex-1 relative overflow-hidden touch-pan-y">
         <AnimatePresence initial={false} custom={direction} mode="popLayout">
