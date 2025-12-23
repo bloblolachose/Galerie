@@ -176,11 +176,18 @@ export default function GalleryPage() {
         <button
           onClick={() => setShowInfo(!showInfo)}
           className={cn(
-            "w-12 h-12 flex items-center justify-center rounded-full transition-all duration-300",
-            showInfo ? "bg-neutral-100 text-neutral-900" : "bg-transparent text-neutral-500 hover:bg-neutral-50"
+            "px-8 py-3 rounded-full font-oswald text-xl uppercase tracking-widest transition-all duration-300 flex items-center gap-3",
+            showInfo ? "bg-neutral-900 text-white border border-neutral-900" : "bg-transparent text-neutral-900 border border-neutral-900 hover:bg-neutral-50"
           )}
         >
-          {showInfo ? <X className="w-6 h-6" /> : <Info className="w-6 h-6" />}
+          {showInfo ? (
+            <>
+              <span>Close</span>
+              <X className="w-5 h-5" />
+            </>
+          ) : (
+            <span>Information</span>
+          )}
         </button>
       </div>
 
