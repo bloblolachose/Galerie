@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ZoomableImage } from "@/components/gallery/ZoomableImage";
 import { HomeMenu } from "@/components/gallery/HomeMenu";
+import { ChatWidget } from "@/components/gallery/ChatWidget";
 import { ChevronLeft, ChevronRight, Info, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -256,6 +257,9 @@ export default function GalleryPage() {
           {String(index + 1).padStart(2, '0')} / {String(artworks.length).padStart(2, '0')}
         </div>
       </div>
+
+      {/* Chat Widget - Always visible */}
+      <ChatWidget />
 
       {/* Full Screen Home Menu */}
       <AnimatePresence>
