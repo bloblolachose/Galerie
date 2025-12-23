@@ -53,8 +53,9 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="fixed inset-0 z-50 bg-white/95 backdrop-blur-xl overflow-y-auto"
+            transition={{ duration: 0.2, ease: "circOut" }}
+            style={{ willChange: "transform, opacity" }}
+            className="fixed inset-0 z-50 bg-white overflow-y-auto"
         >
             {/* Close Button */}
             <button
@@ -164,7 +165,7 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
                                     <button
                                         key={artwork.id}
                                         onClick={() => onNavigate(globalIndex)}
-                                        className="group relative aspect-square bg-neutral-50 rounded-lg overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg text-left"
+                                        className="group relative aspect-square bg-neutral-100 rounded-lg overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg text-left"
                                     >
                                         <img
                                             src={artwork.imageUrl}
@@ -173,7 +174,7 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
                                             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                         />
                                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
-                                        <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-white/90 backdrop-blur-sm">
+                                        <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-white">
                                             <div className="text-xs font-medium truncate">{artwork.title}</div>
                                             {/* Show artist name in grid only if viewing All */}
                                             {!selectedArtistId && (
