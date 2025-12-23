@@ -139,7 +139,7 @@ export default function ExhibitionDetailsPage() {
 
                 {/* Available List */}
                 <div className="flex flex-col bg-neutral-900/50 rounded-xl border border-neutral-800 overflow-hidden">
-                    <div className="p-4 border-b border-neutral-800 bg-neutral-900 flex items-center justify-between gap-4">
+                    <div className="p-4 border-b border-neutral-800 bg-neutral-900 flex flex-col md:flex-row md:items-center justify-between gap-3">
                         <div>
                             <h2 className="font-semibold">Available Inventory</h2>
                             <p className="text-xs text-neutral-500">Tap to add</p>
