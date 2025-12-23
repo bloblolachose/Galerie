@@ -28,9 +28,9 @@ export default function DashboardLayout({
     if (!isAuthenticated) return null;
 
     return (
-        <div className="flex flex-col md:flex-row h-screen bg-black text-white">
+        <div className="flex flex-col md:flex-row h-[100dvh] bg-black text-white overflow-hidden">
             {/* Sidebar */}
-            <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-neutral-800 bg-neutral-900/50 p-4 md:p-6 flex flex-row md:flex-col items-center md:items-stretch gap-4 md:gap-0 shrink-0">
+            <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-neutral-800 bg-neutral-900 z-50 p-4 md:p-6 flex flex-row md:flex-col items-center md:items-stretch gap-4 md:gap-0 shrink-0">
                 <div className="flex md:flex-col gap-4 items-center md:items-start mr-auto md:mr-0">
                     <img src="/logo.png" alt="Gallery Logo" className="w-8 h-8 md:w-12 md:h-12 object-contain invert" />
                     {/* <h2 className="text-xl font-bold tracking-tight">Gallery Admin</h2> */}
