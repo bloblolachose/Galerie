@@ -9,7 +9,7 @@ import { toast } from "sonner";
 
 export default function ArtworksPage() {
     const artworks = useAllArtworks();
-    const { createArtwork, deleteArtwork } = useAdminActions();
+    const { createArtwork, deleteArtwork, uploadImage } = useAdminActions();
     const [isCreating, setIsCreating] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
 
@@ -24,22 +24,22 @@ export default function ArtworksPage() {
         price: ""
     });
 
-    const onDrop = useCallback((acceptedFiles: File[]) => {
+    const onDrop = useCallback(async (acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
         if (!file) return;
 
         setIsProcessing(true);
-        const reader = new FileReader();
-
-        reader.onabort = () => setIsProcessing(false);
-        reader.onerror = () => setIsProcessing(false);
-        reader.onload = () => {
-            setFormData(prev => ({ ...prev, imageUrl: reader.result as string }));
+        try {
+            const publicUrl = await uploadImage(file);
+            setFormData(prev => ({ ...prev, imageUrl: publicUrl }));
+            toast.success("Image uploaded to cloud");
+        } catch (error) {
+            console.error(error);
+            toast.error("Upload failed");
+        } finally {
             setIsProcessing(false);
-        };
-
-        reader.readAsDataURL(file);
-    }, []);
+        }
+    }, [uploadImage]);
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
