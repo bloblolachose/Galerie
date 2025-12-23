@@ -65,9 +65,15 @@ export default function ExhibitionDetailsPage() {
     };
 
     // Filter artworks that are NOT in the exhibition
+    const [artistFilter, setArtistFilter] = useState<string>("");
+
     const availableArtworks = allArtworks?.filter(
         a => !exhibition.artworkIds.includes(a.id)
+    ).filter(
+        a => artistFilter ? a.artist === artistFilter : true
     );
+
+    const uniqueArtists = Array.from(new Set(allArtworks?.map(a => a.artist).filter(Boolean))).sort();
 
     return (
         <div className="p-8 max-w-6xl mx-auto h-[calc(100vh-2rem)] flex flex-col">
@@ -127,9 +133,21 @@ export default function ExhibitionDetailsPage() {
 
                 {/* Available List */}
                 <div className="flex flex-col bg-neutral-900/50 rounded-xl border border-neutral-800 overflow-hidden">
-                    <div className="p-4 border-b border-neutral-800 bg-neutral-900">
-                        <h2 className="font-semibold">Available Inventory</h2>
-                        <p className="text-xs text-neutral-500">Tap to add</p>
+                    <div className="p-4 border-b border-neutral-800 bg-neutral-900 flex items-center justify-between gap-4">
+                        <div>
+                            <h2 className="font-semibold">Available Inventory</h2>
+                            <p className="text-xs text-neutral-500">Tap to add</p>
+                        </div>
+                        <select
+                            value={artistFilter}
+                            onChange={(e) => setArtistFilter(e.target.value)}
+                            className="bg-neutral-800 border border-neutral-700 text-sm rounded-lg px-2 py-1 focus:outline-none focus:border-neutral-500 max-w-[150px]"
+                        >
+                            <option value="">All Artists</option>
+                            {uniqueArtists.map(artist => (
+                                <option key={artist} value={artist}>{artist}</option>
+                            ))}
+                        </select>
                     </div>
                     <div className="flex-1 overflow-y-auto p-4 content-start grid gap-2">
                         {availableArtworks?.map(artwork => (
@@ -150,7 +168,7 @@ export default function ExhibitionDetailsPage() {
                         ))}
                         {availableArtworks?.length === 0 && (
                             <div className="text-center py-10 text-neutral-500">
-                                No other artworks available.
+                                No artwork found.
                             </div>
                         )}
                     </div>
