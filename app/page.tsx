@@ -12,6 +12,7 @@ export default function GalleryPage() {
   const [index, setIndex] = useState(0);
   const [direction, setDirection] = useState(0);
   const [showInfo, setShowInfo] = useState(false); // Can default to true or false
+  const [isExpanded, setIsExpanded] = useState(false);
 
   // Keyboard navigation
   useEffect(() => {
@@ -32,22 +33,25 @@ export default function GalleryPage() {
           setIndex(newIndex);
         }
       }
+      if (e.key === "Escape") {
+        setIsExpanded(false);
+      }
     };
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [index, exhibition]);
+  }, [index, exhibition, isExpanded]);
 
   // If no exhibition active
   if (exhibition === undefined) return (
     <div className="h-screen bg-background flex flex-col items-center justify-center text-muted-foreground gap-4 border-4 border-black">
       <Loader2 className="w-8 h-8 animate-spin text-foreground" />
-      <p className="font-mono uppercase tracking-widest">Loading...</p>
+      <p className="font-oswald uppercase tracking-widest">Loading...</p>
     </div>
   );
   if (exhibition === null) return (
     <div className="h-screen bg-background flex flex-col items-center justify-center text-foreground gap-8 border-4 border-black p-8">
       <div className="border-4 border-black p-8">
-        <h1 className="text-4xl font-black uppercase tracking-tighter mb-4">No Signal</h1>
+        <h1 className="text-4xl font-oswald font-black uppercase tracking-tighter mb-4">No Signal</h1>
         <p className="font-mono text-sm max-w-md">
           No active exhibition found. Please access the administration panel to configure the display.
         </p>
@@ -66,6 +70,7 @@ export default function GalleryPage() {
     if (newIndex >= 0 && newIndex < artworks.length) {
       setDirection(newDirection);
       setIndex(newIndex);
+      setIsExpanded(false); // Reset zoom on slide change
     }
   };
 
@@ -115,10 +120,16 @@ export default function GalleryPage() {
                 paginate(-1);
               }
             }}
-            className="absolute inset-0 z-10 flex items-center justify-center p-4 md:p-8"
+            className={cn(
+              "absolute inset-0 z-10 flex items-center justify-center transition-all duration-500 ease-in-out",
+              isExpanded ? "p-0 bg-white" : "p-8 md:p-32" // Medium size = padding 32, Full = padding 0
+            )}
           >
             {/* Frameless Image Container - Pure Image */}
-            <div className="relative w-full h-full flex items-center justify-center">
+            <div
+              className={cn("relative w-full h-full flex items-center justify-center transition-transform duration-500", isExpanded ? "cursor-zoom-out" : "cursor-zoom-in")}
+              onClick={() => setIsExpanded(!isExpanded)}
+            >
               <ZoomableImage
                 src={currentArtwork.imageUrl}
                 alt={currentArtwork.title}
@@ -129,21 +140,29 @@ export default function GalleryPage() {
         </AnimatePresence>
 
         {/* Navigation Zones - Hidden but clickable for desktop/tap */}
-        <div
-          className="absolute inset-y-0 left-0 w-1/6 z-20 cursor-w-resize"
-          onClick={() => paginate(-1)}
-        />
-        <div
-          className="absolute inset-y-0 right-0 w-1/6 z-20 cursor-e-resize"
-          onClick={() => paginate(1)}
-        />
+        {!isExpanded && ( // Disable navigation zones in full screen to avoid accidental swipes
+          <>
+            <div
+              className="absolute inset-y-0 left-0 w-1/6 z-20 cursor-w-resize"
+              onClick={() => paginate(-1)}
+            />
+            <div
+              className="absolute inset-y-0 right-0 w-1/6 z-20 cursor-e-resize"
+              onClick={() => paginate(1)}
+            />
+          </>
+        )}
       </div>
 
       {/* Footer / Metadata - Minimalist */}
-      <div className="flex-shrink-0 h-24 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 relative z-30 shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)]">
+      {/* Hide footer in expanded mode for full immersion */}
+      <div className={cn(
+        "flex-shrink-0 h-24 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 relative z-30 shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)] transition-transform duration-500",
+        isExpanded ? "translate-y-full" : "translate-y-0"
+      )}>
         <div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
-          <h2 className="text-xl font-medium tracking-tight text-neutral-900">{currentArtwork.title}</h2>
-          <span className="text-neutral-500 font-normal">{currentArtwork.artist}</span>
+          <h2 className="text-3xl uppercase font-oswald tracking-tight text-neutral-900">{currentArtwork.title}</h2>
+          <span className="text-neutral-500 font-normal font-sans tracking-wide">{currentArtwork.artist}</span>
         </div>
 
         <button
@@ -189,20 +208,20 @@ export default function GalleryPage() {
 
       {/* Floating Navigation Arrows (Minimalist) */}
       <button
-        className={cn("absolute left-4 top-1/2 -translate-y-1/2 p-4 text-neutral-400 hover:text-neutral-900 transition-colors z-20", index === 0 && "opacity-0 pointer-events-none")}
+        className={cn("absolute left-4 top-1/2 -translate-y-1/2 p-4 text-neutral-400 hover:text-neutral-900 transition-colors z-20", index === 0 && "opacity-0 pointer-events-none", isExpanded && "opacity-0 pointer-events-none")}
         onClick={() => paginate(-1)}
       >
         <ChevronLeft className="w-8 h-8 drop-shadow-md" />
       </button>
       <button
-        className={cn("absolute right-4 top-1/2 -translate-y-1/2 p-4 text-neutral-400 hover:text-neutral-900 transition-colors z-20", index === artworks.length - 1 && "opacity-0 pointer-events-none")}
+        className={cn("absolute right-4 top-1/2 -translate-y-1/2 p-4 text-neutral-400 hover:text-neutral-900 transition-colors z-20", index === artworks.length - 1 && "opacity-0 pointer-events-none", isExpanded && "opacity-0 pointer-events-none")}
         onClick={() => paginate(1)}
       >
         <ChevronRight className="w-8 h-8 drop-shadow-md" />
       </button>
 
       {/* Top Left Branding - Nude & Shadow */}
-      <div className="absolute top-0 left-0 p-8 z-20 pointer-events-none flex flex-col items-start gap-1">
+      <div className={cn("absolute top-0 left-0 p-8 z-20 pointer-events-none flex flex-col items-start gap-1 transition-opacity duration-300", isExpanded ? "opacity-0" : "opacity-100")}>
         <img
           src="/logo.png"
           alt="Logo"
@@ -214,8 +233,8 @@ export default function GalleryPage() {
       </div>
 
       {/* Counter (Minimalist) */}
-      <div className="absolute top-8 right-8 z-20 pointer-events-none">
-        <div className="text-neutral-400 font-medium text-sm tracking-widest">
+      <div className={cn("absolute top-8 right-8 z-20 pointer-events-none transition-opacity duration-300", isExpanded ? "opacity-0" : "opacity-100")}>
+        <div className="text-neutral-400 font-medium text-sm tracking-widest font-oswald">
           {String(index + 1).padStart(2, '0')} / {String(artworks.length).padStart(2, '0')}
         </div>
       </div>
