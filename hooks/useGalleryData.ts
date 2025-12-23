@@ -125,6 +125,8 @@ function camelCaseExhibition(e: any): Exhibition {
         endDate: e.end_date,
         isActive: e.is_active,
         artworkIds: e.artwork_ids || [],
-        createdAt: e.created_at
+        createdAt: e.created_at,
+        artistBio: e.artist_bio,
+        artistPhotoUrl: e.artist_photo_url
     };
 }

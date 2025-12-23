@@ -79,6 +79,22 @@ export function useAdminActions() {
         if (error) throw error;
     };
 
+    const updateExhibitionDetails = async (id: string, data: Partial<Exhibition>) => {
+        const updates: any = {};
+        // Map camelCase to snake_case
+        if (data.artistBio !== undefined) updates.artist_bio = data.artistBio;
+        if (data.artistPhotoUrl !== undefined) updates.artist_photo_url = data.artistPhotoUrl;
+
+        if (Object.keys(updates).length === 0) return;
+
+        const { error } = await supabase
+            .from('exhibitions')
+            .update(updates)
+            .eq('id', id);
+
+        if (error) throw error;
+    };
+
     const deleteExhibition = async (id: string) => {
         const { error } = await supabase.from('exhibitions').delete().eq('id', id);
         if (error) throw error;
@@ -94,6 +110,7 @@ export function useAdminActions() {
         createExhibition,
         setExhibitionActive,
         updateExhibitionArtworks,
+        updateExhibitionDetails,
         deleteExhibition,
         uploadImage,
         exportDatabase,
