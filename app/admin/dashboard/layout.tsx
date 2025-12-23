@@ -28,34 +28,34 @@ export default function DashboardLayout({
     if (!isAuthenticated) return null;
 
     return (
-        <div className="flex h-screen bg-black text-white">
+        <div className="flex flex-col md:flex-row h-screen bg-black text-white">
             {/* Sidebar */}
-            <aside className="w-64 border-r border-neutral-800 bg-neutral-900/50 p-6 flex flex-col">
-                <div className="mb-8 flex flex-col gap-4">
-                    <img src="/logo.png" alt="Gallery Logo" className="w-12 h-12 object-contain invert self-start" />
+            <aside className="w-full md:w-64 border-b md:border-b-0 md:border-r border-neutral-800 bg-neutral-900/50 p-4 md:p-6 flex flex-row md:flex-col items-center md:items-stretch gap-4 md:gap-0 shrink-0">
+                <div className="flex md:flex-col gap-4 items-center md:items-start mr-auto md:mr-0">
+                    <img src="/logo.png" alt="Gallery Logo" className="w-8 h-8 md:w-12 md:h-12 object-contain invert" />
                     {/* <h2 className="text-xl font-bold tracking-tight">Gallery Admin</h2> */}
                 </div>
 
-                <nav className="space-y-2 flex-1">
+                <nav className="flex md:flex-col gap-2 md:space-y-2 flex-1 md:mt-8 justify-end md:justify-start">
                     <Link
                         href="/admin/dashboard"
                         className={cn(
-                            "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                            "flex items-center gap-3 px-3 py-2 md:px-4 md:py-3 rounded-lg text-sm font-medium transition-colors",
                             pathname === "/admin/dashboard" ? "bg-white text-black" : "text-neutral-400 hover:text-white hover:bg-white/5"
                         )}
                     >
                         <LayoutGrid className="w-5 h-5" />
-                        Exhibitions
+                        <span className="hidden md:inline">Exhibitions</span>
                     </Link>
                     <Link
                         href="/admin/dashboard/artworks"
                         className={cn(
-                            "flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors",
+                            "flex items-center gap-3 px-3 py-2 md:px-4 md:py-3 rounded-lg text-sm font-medium transition-colors",
                             pathname === "/admin/dashboard/artworks" ? "bg-white text-black" : "text-neutral-400 hover:text-white hover:bg-white/5"
                         )}
                     >
                         <ImageIcon className="w-5 h-5" />
-                        Artworks
+                        <span className="hidden md:inline">Artworks</span>
                     </Link>
                 </nav>
 
@@ -64,10 +64,10 @@ export default function DashboardLayout({
                         logout();
                         router.push("/admin");
                     }}
-                    className="flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium text-red-500 hover:bg-white/5 transition-colors mt-auto"
+                    className="flex items-center gap-3 px-3 py-2 md:px-4 md:py-3 rounded-lg text-sm font-medium text-red-500 hover:bg-white/5 transition-colors mt-0 md:mt-auto"
                 >
                     <LogOut className="w-5 h-5" />
-                    Sign Out
+                    <span className="hidden md:inline">Sign Out</span>
                 </button>
             </aside>
 
