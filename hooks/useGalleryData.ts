@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Artwork, Exhibition } from '@/types';
+import { useSyncStore } from '@/store/syncStore';
 
 // Helper to convert snake_case DB object to CamelCase TS object
 function camelCaseArtwork(a: any): Artwork {
@@ -36,6 +37,7 @@ function camelCaseExhibition(e: any): Exhibition {
 export function useAllArtworks() {
     const [artworks, setArtworks] = useState<Artwork[]>([]);
     const [loading, setLoading] = useState(true);
+    const version = useSyncStore(s => s.version); // Subscribe to manual refreshes
 
     useEffect(() => {
         const fetchArtworks = async () => {
@@ -54,7 +56,7 @@ export function useAllArtworks() {
 
         fetchArtworks();
 
-        // Subscribe to changes
+        // Subscribe to changes (Realtime)
         const channel = supabase
             .channel('artworks_changes')
             .on('postgres_changes', { event: '*', schema: 'public', table: 'artworks' }, () => {
@@ -63,13 +65,14 @@ export function useAllArtworks() {
             .subscribe();
 
         return () => { supabase.removeChannel(channel); };
-    }, []);
+    }, [version]); // DEPEND ON VERSION TO RE-RUN
 
     return artworks;
 }
 
 export function useExhibition(id: string) {
     const [exhibition, setExhibition] = useState<Exhibition | null>(null);
+    const version = useSyncStore(s => s.version);
 
     useEffect(() => {
         const fetchExhibition = async () => {
@@ -119,13 +122,14 @@ export function useExhibition(id: string) {
             .subscribe();
 
         return () => { supabase.removeChannel(channel); };
-    }, [id]);
+    }, [id, version]);
 
     return exhibition as (Exhibition & { artworks: Artwork[] }) | null;
 }
 
 export function useActiveExhibition() {
     const [exhibition, setExhibition] = useState<Exhibition | null>(null);
+    const version = useSyncStore(s => s.version);
 
     useEffect(() => {
         const fetchActive = async () => {
@@ -168,7 +172,7 @@ export function useActiveExhibition() {
             .subscribe();
 
         return () => { supabase.removeChannel(channel); };
-    }, []);
+    }, [version]);
 
     return exhibition as (Exhibition & { artworks: Artwork[] }) | null;
 }
@@ -176,6 +180,7 @@ export function useActiveExhibition() {
 export function useAllExhibitions() {
     const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
     const [loading, setLoading] = useState(true);
+    const version = useSyncStore(s => s.version);
 
     useEffect(() => {
         const fetchExhibitions = async () => {
@@ -202,7 +207,7 @@ export function useAllExhibitions() {
             .subscribe();
 
         return () => { supabase.removeChannel(channel); };
-    }, []);
+    }, [version]);
 
     return { exhibitions, loading };
 }

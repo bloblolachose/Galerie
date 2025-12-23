@@ -1,8 +1,10 @@
 import { supabase } from "@/lib/supabase";
 import { Artwork, Exhibition } from "@/types";
 import { v4 as uuidv4 } from 'uuid';
+import { useSyncStore } from "@/store/syncStore";
 
 export function useAdminActions() {
+    const refreshData = useSyncStore(s => s.refreshData);
 
     // Helper: Upload Image to Supabase Storage
     const uploadImage = async (file: File) => {
@@ -37,12 +39,14 @@ export function useAdminActions() {
         });
 
         if (error) throw error;
+        refreshData(); // Trigger update
         return true;
     };
 
     const deleteArtwork = async (id: string) => {
         const { error } = await supabase.from('artworks').delete().eq('id', id);
         if (error) throw error;
+        refreshData();
     };
 
     // Exhibition Actions
@@ -57,18 +61,18 @@ export function useAdminActions() {
         });
 
         if (error) throw error;
+        refreshData();
         return true;
     };
 
     const setExhibitionActive = async (id: string) => {
         // 1. Set all to inactive
-        // We use a "not equal to impossible ID" hack to try and update all rows, 
-        // or we could skip this if we assume the backend handles it, but for now client-side safety:
         await supabase.from('exhibitions').update({ is_active: false }).neq('id', '00000000-0000-0000-0000-000000000000');
 
         // 2. Set target to active
         const { error } = await supabase.from('exhibitions').update({ is_active: true }).eq('id', id);
         if (error) throw error;
+        refreshData();
     };
 
     const updateExhibitionArtworks = async (id: string, artworkIds: string[]) => {
@@ -77,6 +81,9 @@ export function useAdminActions() {
             .update({ artwork_ids: artworkIds })
             .eq('id', id);
         if (error) throw error;
+        // refreshData(); // Drag and drop often triggers many updates, maybe debounce or skip full refresh?
+        // Actually for order changes it's good to sync.
+        refreshData();
     };
 
     const updateExhibitionDetails = async (id: string, data: Partial<Exhibition>) => {
@@ -94,11 +101,13 @@ export function useAdminActions() {
             .eq('id', id);
 
         if (error) throw error;
+        refreshData();
     };
 
     const deleteExhibition = async (id: string) => {
         const { error } = await supabase.from('exhibitions').delete().eq('id', id);
         if (error) throw error;
+        refreshData();
     };
 
     // Deprecated but kept for type signature compatibility if needed
