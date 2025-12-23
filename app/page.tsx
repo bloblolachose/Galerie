@@ -120,22 +120,27 @@ export default function GalleryPage() {
                 paginate(-1);
               }
             }}
-            className={cn(
-              "absolute inset-0 z-10 flex items-center justify-center transition-all duration-500 ease-in-out",
-              isExpanded ? "p-0 bg-white" : "p-8 md:p-32" // Medium size = padding 32, Full = padding 0
-            )}
+            className="absolute inset-0 z-10 flex items-center justify-center pointer-events-none"
           >
-            {/* Frameless Image Container - Pure Image */}
-            <div
-              className={cn("relative w-full h-full flex items-center justify-center transition-transform duration-500", isExpanded ? "cursor-zoom-out" : "cursor-zoom-in")}
+            {/* Frameless Image Container */}
+            <motion.div
+              layout
+              initial={{ padding: "2rem" }} // p-8 equivalent
+              animate={{
+                padding: isExpanded ? "0rem" : (window.innerWidth >= 768 ? "8rem" : "2rem") // 0 or p-32/p-8
+              }}
+              transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }} // Apple-style ease
+              className="w-full h-full flex items-center justify-center pointer-events-auto"
               onClick={() => setIsExpanded(!isExpanded)}
             >
-              <ZoomableImage
-                src={currentArtwork.imageUrl}
-                alt={currentArtwork.title}
-                isActive={true}
-              />
-            </div>
+              <div className={cn("relative w-full h-full flex items-center justify-center transition-transform", isExpanded ? "cursor-zoom-out" : "cursor-zoom-in")}>
+                <ZoomableImage
+                  src={currentArtwork.imageUrl}
+                  alt={currentArtwork.title}
+                  isActive={true}
+                />
+              </div>
+            </motion.div>
           </motion.div>
         </AnimatePresence>
 
