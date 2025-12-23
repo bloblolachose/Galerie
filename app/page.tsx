@@ -72,7 +72,7 @@ export default function GalleryPage() {
   return (
     <div className="relative h-screen w-screen bg-background text-foreground overflow-hidden flex flex-col font-sans">
       {/* Main Image Area */}
-      <div className="flex-1 relative border-b-4 border-black box-border overflow-hidden touch-pan-y">
+      <div className="flex-1 relative overflow-hidden touch-pan-y">
         <AnimatePresence initial={false} custom={direction} mode="popLayout">
           <motion.div
             key={index}
@@ -80,12 +80,18 @@ export default function GalleryPage() {
             variants={{
               enter: (direction: number) => ({
                 x: direction > 0 ? "100%" : "-100%",
+                scale: 0.95,
+                opacity: 0
               }),
               center: {
                 x: 0,
+                scale: 1,
+                opacity: 1
               },
               exit: (direction: number) => ({
                 x: direction < 0 ? "100%" : "-100%",
+                scale: 0.95,
+                opacity: 0,
                 zIndex: 0
               })
             }}
@@ -93,8 +99,9 @@ export default function GalleryPage() {
             animate="center"
             exit="exit"
             transition={{
-              x: { type: "tween", ease: [0.32, 0.72, 0, 1], duration: 0.75 },
-              opacity: { duration: 0.2 }
+              x: { type: "spring", stiffness: 300, damping: 30 },
+              opacity: { duration: 0.2 },
+              scale: { duration: 0.2 }
             }}
             drag="x"
             dragConstraints={{ left: 0, right: 0 }}
@@ -108,13 +115,15 @@ export default function GalleryPage() {
                 paginate(-1);
               }
             }}
-            className="absolute inset-0 bg-[#F5F4F0] z-10"
+            className="absolute inset-0 z-10 p-8 flex items-center justify-center p-8 md:p-16"
           >
-            <ZoomableImage
-              src={currentArtwork.imageUrl}
-              alt={currentArtwork.title}
-              isActive={true}
-            />
+            <div className="relative w-full h-full shadow-2xl rounded-lg overflow-hidden bg-white/50 backdrop-blur-sm">
+              <ZoomableImage
+                src={currentArtwork.imageUrl}
+                alt={currentArtwork.title}
+                isActive={true}
+              />
+            </div>
           </motion.div>
         </AnimatePresence>
 
@@ -129,89 +138,83 @@ export default function GalleryPage() {
         />
       </div>
 
-      {/* Brutalist Footer / Metadata */}
-      {/* Always visible or toggled? User said "on peut pas voir", so let's make a dedicated section at bottom */}
-
-      <div className="flex-shrink-0 h-32 md:h-24 border-t-4 border-black bg-background flex items-center justify-between px-8 relative z-30">
-        <div className="flex flex-col md:flex-row md:items-baseline gap-2 md:gap-6">
-          <h2 className="text-2xl font-black uppercase tracking-tighter">{currentArtwork.title}</h2>
-          <div className="flex items-center gap-4 font-mono text-sm border-l-2 border-black pl-4">
-            <span className="font-bold">{currentArtwork.artist}</span>
-          </div>
+      {/* Footer / Metadata - Minimalist */}
+      <div className="flex-shrink-0 h-24 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 relative z-30 shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)]">
+        <div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
+          <h2 className="text-xl font-medium tracking-tight text-neutral-900">{currentArtwork.title}</h2>
+          <span className="text-neutral-500 font-normal">{currentArtwork.artist}</span>
         </div>
 
         <button
           onClick={() => setShowInfo(!showInfo)}
           className={cn(
-            "px-4 py-2 border-2 border-black font-mono text-xs uppercase hover:bg-black hover:text-white transition-colors",
-            showInfo ? "bg-black text-white" : "bg-transparent text-black"
+            "w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300",
+            showInfo ? "bg-neutral-100 text-neutral-900" : "bg-transparent text-neutral-500 hover:bg-neutral-50"
           )}
         >
-          {showInfo ? "Info [-]" : "Info [+]"}
+          {showInfo ? <X className="w-5 h-5" /> : <Info className="w-5 h-5" />}
         </button>
       </div>
 
-      {/* Detailed Info Drawer */}
+      {/* Detailed Info Drawer - Apple Style (Floating Card) */}
       <div className={cn(
-        "absolute bottom-32 md:bottom-24 left-0 w-full md:w-auto md:max-w-md bg-white border-4 border-l-0 md:border-l-4 border-black p-6 transition-transform duration-300 z-50",
-        showInfo ? "translate-y-0" : "translate-y-[150%]"
+        "absolute bottom-28 right-8 w-full md:max-w-sm bg-white/90 backdrop-blur-xl rounded-3xl p-6 shadow-2xl transition-all duration-500 z-50 origin-bottom-right transform",
+        showInfo ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
       )}>
-        <div className="relative space-y-4 font-mono text-sm text-black">
-          {/* Decorative Triangles */}
-          <div className="absolute -top-3 -left-3 w-0 h-0 border-t-[8px] border-t-red-500 border-r-[8px] border-r-transparent" />
-          <div className="absolute -bottom-3 -right-3 w-0 h-0 border-b-[8px] border-b-red-500 border-l-[8px] border-l-transparent" />
-
-          <div className="grid grid-cols-2 gap-4 border-b-2 border-dashed border-black pb-4">
-            <div className="opacity-60">Year</div>
-            <div className="font-bold text-right">{currentArtwork.year || "N/A"}</div>
-            <div className="opacity-60">Medium</div>
-            <div className="font-bold text-right">{currentArtwork.medium || "N/A"}</div>
-            <div className="opacity-60">Dimensions</div>
-            <div className="font-bold text-right">{currentArtwork.dimensions || "N/A"}</div>
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-sm">
+            <div>
+              <div className="text-neutral-400 text-xs uppercase tracking-wide mb-1">Year</div>
+              <div className="font-medium">{currentArtwork.year || "N/A"}</div>
+            </div>
+            <div>
+              <div className="text-neutral-400 text-xs uppercase tracking-wide mb-1">Medium</div>
+              <div className="font-medium">{currentArtwork.medium || "N/A"}</div>
+            </div>
+            <div className="col-span-2">
+              <div className="text-neutral-400 text-xs uppercase tracking-wide mb-1">Dimensions</div>
+              <div className="font-medium">{currentArtwork.dimensions || "N/A"}</div>
+            </div>
           </div>
 
-          <div className="border-b-2 border-dashed border-black pb-4">
-            <div className="opacity-60 mb-2">About</div>
-            <p className="leading-relaxed whitespace-pre-wrap">
+          <div className="pt-4 border-t border-neutral-100">
+            <div className="text-neutral-400 text-xs uppercase tracking-wide mb-2">About</div>
+            <p className="text-neutral-600 leading-relaxed text-sm whitespace-pre-wrap">
               {currentArtwork.description ? currentArtwork.description : "No description available."}
             </p>
-          </div>
-
-          {/* Logo in drawer as well? */}
-          <div className="pt-2 flex justify-between items-center">
-            <span className="text-[10px] text-gray-400">v2.5</span>
-            <img src="/logo.png" alt="Logo" className="w-12 h-12 object-contain grayscale" />
           </div>
         </div>
       </div>
 
-      {/* Floating Navigation Arrows (Brutalist Style) */}
+      {/* Floating Navigation Arrows (Minimalist) */}
       <button
-        className={cn("absolute left-0 top-1/2 -translate-y-1/2 bg-white border-y-4 border-r-4 border-black p-4 hover:bg-black hover:text-white transition-all z-20", index === 0 && "opacity-0 pointer-events-none")}
+        className={cn("absolute left-4 top-1/2 -translate-y-1/2 p-4 text-neutral-400 hover:text-neutral-900 transition-colors z-20", index === 0 && "opacity-0 pointer-events-none")}
         onClick={() => paginate(-1)}
       >
-        <ChevronLeft className="w-8 h-8" />
+        <ChevronLeft className="w-8 h-8 drop-shadow-md" />
       </button>
       <button
-        className={cn("absolute right-0 top-1/2 -translate-y-1/2 bg-white border-y-4 border-l-4 border-black p-4 hover:bg-black hover:text-white transition-all z-20", index === artworks.length - 1 && "opacity-0 pointer-events-none")}
+        className={cn("absolute right-4 top-1/2 -translate-y-1/2 p-4 text-neutral-400 hover:text-neutral-900 transition-colors z-20", index === artworks.length - 1 && "opacity-0 pointer-events-none")}
         onClick={() => paginate(1)}
       >
-        <ChevronRight className="w-8 h-8" />
+        <ChevronRight className="w-8 h-8 drop-shadow-md" />
       </button>
 
-      {/* Top Left Branding */}
-      <div className="absolute top-0 left-0 p-6 z-20 pointer-events-none flex flex-col items-start gap-2">
-        <div className="bg-white border-4 border-black p-2 shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
-          <img src="/logo.png" alt="Logo" className="w-16 h-16 object-contain" />
-        </div>
-        <div className="bg-black text-white px-2 py-1 font-mono text-xs uppercase tracking-widest mt-2">
+      {/* Top Left Branding - Nude & Shadow */}
+      <div className="absolute top-0 left-0 p-8 z-20 pointer-events-none flex flex-col items-start gap-1">
+        <img
+          src="/logo.png"
+          alt="Logo"
+          className="w-24 h-auto object-contain drop-shadow-lg"
+        />
+        <div className="text-neutral-400 text-xs uppercase tracking-wider pl-1 font-medium">
           {exhibition.title}
         </div>
       </div>
 
-      {/* Counter (Top Right) */}
-      <div className="absolute top-6 right-6 z-20 pointer-events-none">
-        <div className="bg-white border-4 border-black px-4 py-2 font-black text-xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+      {/* Counter (Minimalist) */}
+      <div className="absolute top-8 right-8 z-20 pointer-events-none">
+        <div className="text-neutral-400 font-medium text-sm tracking-widest">
           {String(index + 1).padStart(2, '0')} / {String(artworks.length).padStart(2, '0')}
         </div>
       </div>

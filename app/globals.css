@@ -54,40 +54,39 @@
 }
 
 :root {
-  /* Cream / Brutalist Theme */
-  --background: 40 20% 94%;
-  /* #F5F4F0 */
-  --foreground: 0 0% 0%;
-  /* Black */
+  /* Apple Minimalist / Cream Theme */
+  --background: 40 10% 98%;
+  /* Very light cream #FCFAF8 */
+  --foreground: 0 0% 11%;
+  /* Soft Black #1D1D1F */
 
   --card: 0 0% 100%;
-  --card-foreground: 0 0% 0%;
+  --card-foreground: 0 0% 11%;
 
   --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 0%;
+  --popover-foreground: 0 0% 11%;
 
-  --primary: 0 0% 0%;
+  --primary: 0 0% 11%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 0 0% 90%;
-  --secondary-foreground: 0 0% 0%;
+  --secondary: 0 0% 96.1%;
+  --secondary-foreground: 0 0% 11%;
 
-  --muted: 0 0% 85%;
-  --muted-foreground: 0 0% 40%;
+  --muted: 0 0% 96.1%;
+  --muted-foreground: 0 0% 45.1%;
 
-  --accent: 0 0% 90%;
-  --accent-foreground: 0 0% 0%;
+  --accent: 0 0% 96.1%;
+  --accent-foreground: 0 0% 11%;
 
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
 
-  --border: 0 0% 0%;
-  /* Black Borders */
-  --input: 0 0% 0%;
-  --ring: 0 0% 0%;
+  --border: 0 0% 89.8%;
+  --input: 0 0% 89.8%;
+  --ring: 0 0% 11%;
 
-  --radius: 0px;
-  /* Brutalist = No Radius */
+  --radius: 1rem;
+  /* Soft corners */
 }
 
 @layer base {
