@@ -1,107 +1,9 @@
-import useSWR from 'swr';
-import { supabase } from "@/lib/supabase";
-import { Artwork, Exhibition } from "@/types";
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
+import { Artwork, Exhibition } from '@/types';
+import { useSyncStore } from '@/store/syncStore';
 
-// Fetcher function
-const fetcher = async (query: string) => {
-    // This is a simplified fetcher, in reality we handle specific endpoints
-    return null;
-};
-
-export function useActiveExhibition() {
-    const { data, error, mutate } = useSWR('active-exhibition', async () => {
-        // 1. Get active exhibition
-        const { data: exhibitions } = await supabase
-            .from('exhibitions')
-            .select('*')
-            .eq('is_active', true)
-            .limit(1);
-
-        const active = exhibitions?.[0];
-        if (!active) return null;
-
-        // 2. Get artworks
-        // Postgres array contains IDs, we need to fetch all artworks where ID is in the array
-        if (!active.artwork_ids || active.artwork_ids.length === 0) {
-            return { ...camelCaseExhibition(active), artworks: [] };
-        }
-
-        // Supabase "in" filter
-        const { data: artworks } = await supabase
-            .from('artworks')
-            .select('*')
-            .in('id', active.artwork_ids);
-
-        // Sort them in the order of the array
-        const sortedArtworks = active.artwork_ids.map((id: string) =>
-            artworks?.find((a: any) => a.id === id)
-        ).filter(Boolean);
-
-        return {
-            ...camelCaseExhibition(active),
-            artworks: sortedArtworks.map(camelCaseArtwork)
-        };
-    }, { refreshInterval: 2000 }); // Poll every 2s for "magic sync" feel
-
-    return data;
-}
-
-export function useAllArtworks() {
-    const { data } = useSWR('all-artworks', async () => {
-        const { data } = await supabase
-            .from('artworks')
-            .select('*')
-            .order('created_at', { ascending: false });
-        return data?.map(camelCaseArtwork) || [];
-    }, { refreshInterval: 2000 });
-
-    return data;
-}
-
-export function useExhibition(id: string) {
-    const { data } = useSWR(['exhibition', id], async () => {
-        const { data: exhibition } = await supabase
-            .from('exhibitions')
-            .select('*')
-            .eq('id', id)
-            .single();
-
-        if (!exhibition) return null;
-
-        let artworks: any[] = [];
-        if (exhibition.artwork_ids && exhibition.artwork_ids.length > 0) {
-            const { data: arts } = await supabase
-                .from('artworks')
-                .select('*')
-                .in('id', exhibition.artwork_ids);
-
-            artworks = exhibition.artwork_ids.map((aid: string) =>
-                arts?.find((a: any) => a.id === aid)
-            ).filter(Boolean);
-        }
-
-        return {
-            ...camelCaseExhibition(exhibition),
-            artworks: artworks.map(camelCaseArtwork)
-        };
-    }, { refreshInterval: 2000 });
-
-    return data;
-}
-
-export function useAllExhibitions() {
-    const { data } = useSWR('all-exhibitions', async () => {
-        const { data } = await supabase
-            .from('exhibitions')
-            .select('*')
-            .order('created_at', { ascending: false });
-        return data?.map(camelCaseExhibition) || [];
-    }, { refreshInterval: 2000 });
-
-    return data;
-}
-
-// Helpers to convert Snake_Case (DB) to CamelCase (App)
+// Helper to convert snake_case DB object to CamelCase TS object
 function camelCaseArtwork(a: any): Artwork {
     return {
         id: a.id,
@@ -112,7 +14,7 @@ function camelCaseArtwork(a: any): Artwork {
         dimensions: a.dimensions,
         imageUrl: a.image_url,
         description: a.description,
-        createdAt: a.created_at
+        createdAt: new Date(a.created_at).getTime()
     };
 }
 
@@ -125,6 +27,194 @@ function camelCaseExhibition(e: any): Exhibition {
         endDate: e.end_date,
         isActive: e.is_active,
         artworkIds: e.artwork_ids || [],
-        createdAt: e.created_at
+        createdAt: e.created_at,
+        artistBio: e.artist_bio,
+        artistPhotoUrl: e.artist_photo_url,
+        artists: e.artists || [] // Parse JSONB column
     };
+}
+
+export function useAllArtworks() {
+    const [artworks, setArtworks] = useState<Artwork[]>([]);
+    const [loading, setLoading] = useState(true);
+    const version = useSyncStore(s => s.version);
+
+    useEffect(() => {
+        const fetchArtworks = async () => {
+            const { data, error } = await supabase
+                .from('artworks')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching artworks:', error);
+            } else {
+                setArtworks(data.map(camelCaseArtwork));
+            }
+            setLoading(false);
+        };
+
+        fetchArtworks();
+
+        // Subscribe to changes
+        const channel = supabase
+            .channel('artworks_changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'artworks' }, () => {
+                fetchArtworks();
+            })
+            .subscribe();
+
+        return () => { supabase.removeChannel(channel); };
+    }, [version]);
+
+    return artworks;
+}
+
+export function useExhibition(id: string) {
+    const [exhibition, setExhibition] = useState<Exhibition | null>(null);
+    const version = useSyncStore(s => s.version);
+
+    useEffect(() => {
+        const fetchExhibition = async () => {
+            if (!id) return;
+            const { data, error } = await supabase
+                .from('exhibitions')
+                .select('*')
+                .eq('id', id)
+                .single();
+
+            if (error) {
+                console.error('Error fetching exhibition:', error);
+            } else {
+                const exh = camelCaseExhibition(data);
+
+                // Hydrate artworks
+                if (exh.artworkIds.length > 0) {
+                    const { data: arts } = await supabase
+                        .from('artworks')
+                        .select('*')
+                        .in('id', exh.artworkIds);
+
+                    if (arts) {
+                        const artMap = new Map(arts.map(a => [a.id, a]));
+                        (exh as any).artworks = exh.artworkIds
+                            .map(id => artMap.get(id))
+                            .filter(Boolean)
+                            .map(camelCaseArtwork);
+                    } else {
+                        (exh as any).artworks = [];
+                    }
+                } else {
+                    (exh as any).artworks = [];
+                }
+
+                setExhibition(exh);
+            }
+        };
+
+        fetchExhibition();
+
+        const channel = supabase
+            .channel(`exhibition_${id}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'exhibitions', filter: `id=eq.${id}` }, () => {
+                fetchExhibition();
+            })
+            .subscribe();
+
+        return () => { supabase.removeChannel(channel); };
+    }, [id, version]);
+
+    return exhibition as (Exhibition & { artworks: Artwork[] }) | null;
+}
+
+export function useActiveExhibition() {
+    const [exhibition, setExhibition] = useState<Exhibition | null>(null);
+    const version = useSyncStore(s => s.version);
+
+    useEffect(() => {
+        const fetchActive = async () => {
+            const { data, error } = await supabase
+                .from('exhibitions')
+                .select('*')
+                .eq('is_active', true)
+                .single();
+
+            if (data) {
+                const exh = camelCaseExhibition(data);
+                if (exh.artworkIds.length > 0) {
+                    const { data: arts } = await supabase
+                        .from('artworks')
+                        .select('*')
+                        .in('id', exh.artworkIds);
+                    if (arts) {
+                        const artMap = new Map(arts.map(a => [a.id, a]));
+                        (exh as any).artworks = exh.artworkIds
+                            .map(id => artMap.get(id))
+                            .filter(Boolean)
+                            .map(camelCaseArtwork);
+                    }
+                } else {
+                    (exh as any).artworks = [];
+                }
+                setExhibition(exh);
+            }
+        };
+
+        fetchActive();
+
+        // Subscription
+        const channel = supabase
+            .channel('active_exhibition')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'exhibitions' }, () => {
+                fetchActive();
+            })
+            .subscribe();
+
+        // Polling fallback (every 10 seconds)
+        const interval = setInterval(() => {
+            fetchActive();
+        }, 10000);
+
+        return () => {
+            supabase.removeChannel(channel);
+            clearInterval(interval);
+        };
+    }, [version]);
+
+    return exhibition as (Exhibition & { artworks: Artwork[] }) | null;
+}
+
+export function useAllExhibitions() {
+    const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
+    const [loading, setLoading] = useState(true);
+    const version = useSyncStore(s => s.version);
+
+    useEffect(() => {
+        const fetchExhibitions = async () => {
+            const { data, error } = await supabase
+                .from('exhibitions')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching exhibitions:', error);
+            } else {
+                setExhibitions(data.map(camelCaseExhibition));
+            }
+            setLoading(false);
+        };
+
+        fetchExhibitions();
+
+        const channel = supabase
+            .channel('all_exhibitions')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'exhibitions' }, () => {
+                fetchExhibitions();
+            })
+            .subscribe();
+
+        return () => { supabase.removeChannel(channel); };
+    }, [version]);
+
+    return { exhibitions, loading };
 }
