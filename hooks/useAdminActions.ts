@@ -43,6 +43,25 @@ export function useAdminActions() {
         return true;
     };
 
+    const updateArtwork = async (id: string, data: Partial<Artwork>) => {
+        const { error } = await supabase
+            .from('artworks')
+            .update({
+                title: data.title,
+                artist: data.artist,
+                year: data.year,
+                medium: data.medium,
+                dimensions: data.dimensions,
+                description: data.description,
+                image_url: data.imageUrl,
+            })
+            .eq('id', id);
+
+        if (error) throw error;
+        refreshData();
+        return true;
+    };
+
     const deleteArtwork = async (id: string) => {
         const { error } = await supabase.from('artworks').delete().eq('id', id);
         if (error) throw error;
@@ -114,6 +133,7 @@ export function useAdminActions() {
 
     return {
         createArtwork,
+        updateArtwork,
         deleteArtwork,
         createExhibition,
         setExhibitionActive,

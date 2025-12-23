@@ -30,7 +30,7 @@ export default function ExhibitionDetailsPage() {
     const { id } = useParams() as { id: string };
     const exhibition = useExhibition(id);
     const allArtworks = useAllArtworks();
-    const { updateExhibitionArtworks, updateExhibitionDetails, uploadImage } = useAdminActions();
+    const { updateExhibitionArtworks, updateExhibitionDetails, uploadImage, updateArtwork } = useAdminActions();
 
     // Sensors for DnD
     const sensors = useSensors(
@@ -93,8 +93,12 @@ export default function ExhibitionDetailsPage() {
             <div className="mb-8 p-6 bg-neutral-900/50 rounded-xl border border-neutral-800">
                 <ArtistManager
                     artists={exhibition.artists || []}
+                    artworks={exhibition.artworks}
                     onUpdate={(newArtists) => updateExhibitionDetails(id, { artists: newArtists })}
                     onUploadImage={uploadImage}
+                    onUpdateArtworkArtist={async (artId, name) => {
+                        await updateArtwork(artId, { artist: name });
+                    }}
                 />
             </div>
 

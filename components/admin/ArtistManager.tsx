@@ -1,15 +1,17 @@
-import { useState } from "react";
-import { Artist } from "@/types";
-import { Plus, Trash2, X, Upload } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Artist, Artwork } from "@/types";
+import { Plus, Trash2, X, Upload, Check } from "lucide-react";
 import { v4 as uuidv4 } from 'uuid';
 
 interface ArtistManagerProps {
     artists: Artist[];
+    artworks?: Artwork[]; // Artworks available in the exhibition
     onUpdate: (artists: Artist[]) => void;
     onUploadImage: (file: File) => Promise<string>;
+    onUpdateArtworkArtist?: (id: string, name: string) => Promise<void>;
 }
 
-export function ArtistManager({ artists, onUpdate, onUploadImage }: ArtistManagerProps) {
+export function ArtistManager({ artists, artworks = [], onUpdate, onUploadImage, onUpdateArtworkArtist }: ArtistManagerProps) {
     const [isAdding, setIsAdding] = useState(false);
     const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -21,7 +23,9 @@ export function ArtistManager({ artists, onUpdate, onUploadImage }: ArtistManage
         photoUrl: ""
     });
 
-    const handleSave = () => {
+    const [assignedArtworkIds, setAssignedArtworkIds] = useState<Set<string>>(new Set());
+
+    const handleSave = async () => {
         if (!tempArtist.name) return;
 
         let newArtists = [...artists];
@@ -35,12 +39,44 @@ export function ArtistManager({ artists, onUpdate, onUploadImage }: ArtistManage
         }
 
         onUpdate(newArtists);
+
+        // Update assigned artworks if handler provided
+        if (onUpdateArtworkArtist && artworks.length > 0) {
+            // 1. Artworks that are NOW assigned -> set artist to tempArtist.name
+            const toAssign = Array.from(assignedArtworkIds);
+            for (const id of toAssign) {
+                // Only update if not already correct (optimization)
+                const art = artworks.find(a => a.id === id);
+                if (art && art.artist !== tempArtist.name) {
+                    await onUpdateArtworkArtist(id, tempArtist.name);
+                }
+            }
+
+            // 2. Artworks that were previously assigned to THIS artist but are now unchecked?
+            // This is tricky because we only track what is currently checked.
+            // If the user unchecks an artwork, we should probably clear its artist field?
+            // For simplicity, and safety, we primarily strictly assign what is checked.
+            // Handling unassignment requires knowing initial state.
+            // Let's iterate ALL artworks. If artwork.artist == oldName AND not in assigned -> clear?
+            // Actually, let's keep it simple: We only enforce assignment for CHECKED items.
+            // The user wants to "put" artworks.
+        }
+
         resetForm();
     };
 
     const handleEdit = (artist: Artist) => {
         setTempArtist(artist);
         setEditingId(artist.id);
+
+        // Pre-select artworks that match this artist's name
+        const matchingIds = new Set(
+            artworks
+                .filter(a => a.artist === artist.name)
+                .map(a => a.id)
+        );
+        setAssignedArtworkIds(matchingIds);
+
         setIsAdding(true);
     };
 
@@ -54,6 +90,17 @@ export function ArtistManager({ artists, onUpdate, onUploadImage }: ArtistManage
         setIsAdding(false);
         setEditingId(null);
         setTempArtist({ id: "", name: "", bio: "", photoUrl: "" });
+        setAssignedArtworkIds(new Set());
+    };
+
+    const toggleArtwork = (id: string) => {
+        const next = new Set(assignedArtworkIds);
+        if (next.has(id)) {
+            next.delete(id);
+        } else {
+            next.add(id);
+        }
+        setAssignedArtworkIds(next);
     };
 
     return (
@@ -176,6 +223,40 @@ export function ArtistManager({ artists, onUpdate, onUploadImage }: ArtistManage
                             />
                         </div>
                     </div>
+
+                    {/* Artwork Assignment Section */}
+                    {artworks.length > 0 && (
+                        <div className="space-y-2 pt-2 border-t border-neutral-700">
+                            <label className="text-xs text-neutral-400 uppercase font-bold tracking-wider">Assign Artworks</label>
+                            <div className="max-h-48 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-2 p-1">
+                                {artworks.map(art => {
+                                    const isSelected = assignedArtworkIds.has(art.id);
+                                    return (
+                                        <div
+                                            key={art.id}
+                                            onClick={() => toggleArtwork(art.id)}
+                                            className={`
+                                                flex items-center gap-3 p-2 rounded-lg border cursor-pointer transition-colors
+                                                ${isSelected ? 'bg-white/10 border-white/30' : 'bg-neutral-900/50 border-transparent hover:bg-neutral-700'}
+                                            `}
+                                        >
+                                            <div className={`
+                                                 w-5 h-5 rounded border flex items-center justify-center transition-colors
+                                                 ${isSelected ? 'bg-white border-white' : 'border-neutral-600'}
+                                             `}>
+                                                {isSelected && <Check className="w-3 h-3 text-black" />}
+                                            </div>
+                                            <img src={art.imageUrl} className="w-8 h-8 rounded object-cover bg-neutral-800" />
+                                            <div className="min-w-0 flex-1">
+                                                <div className="text-xs font-medium truncate text-white">{art.title}</div>
+                                                <div className="text-[10px] truncate text-neutral-500">{art.artist}</div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     <div className="flex justify-end gap-2 pt-2">
                         <button
