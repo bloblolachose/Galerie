@@ -40,6 +40,9 @@ export default function ExhibitionDetailsPage() {
         })
     );
 
+    // Filter artist state
+    const [artistFilter, setArtistFilter] = useState<string>("");
+
     if (!exhibition) return <div className="p-8 text-neutral-500">Loading...</div>;
 
     const handleDragEnd = (event: DragEndEvent) => {
@@ -65,9 +68,6 @@ export default function ExhibitionDetailsPage() {
         const newOrder = [...exhibition.artworkIds, artworkId];
         updateExhibitionArtworks(id, newOrder);
     };
-
-    // Filter artworks that are NOT in the exhibition
-    const [artistFilter, setArtistFilter] = useState<string>("");
 
     const availableArtworks = allArtworks?.filter(
         a => !exhibition.artworkIds.includes(a.id)
