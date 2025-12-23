@@ -115,9 +115,10 @@ export default function GalleryPage() {
                 paginate(-1);
               }
             }}
-            className="absolute inset-0 z-10 p-8 flex items-center justify-center p-8 md:p-16"
+            className="absolute inset-0 z-10 flex items-center justify-center p-4 md:p-8"
           >
-            <div className="relative w-full h-full shadow-2xl rounded-lg overflow-hidden bg-white/50 backdrop-blur-sm">
+            {/* Frameless Image Container - Pure Image */}
+            <div className="relative w-full h-full flex items-center justify-center">
               <ZoomableImage
                 src={currentArtwork.imageUrl}
                 alt={currentArtwork.title}
@@ -205,9 +206,9 @@ export default function GalleryPage() {
         <img
           src="/logo.png"
           alt="Logo"
-          className="w-24 h-auto object-contain drop-shadow-lg"
+          className="w-48 h-auto object-contain drop-shadow-xl"
         />
-        <div className="text-neutral-400 text-xs uppercase tracking-wider pl-1 font-medium">
+        <div className="text-neutral-400 text-xs uppercase tracking-wider pl-1 font-medium hidden">
           {exhibition.title}
         </div>
       </div>
