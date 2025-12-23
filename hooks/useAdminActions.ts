@@ -84,6 +84,7 @@ export function useAdminActions() {
         // Map camelCase to snake_case
         if (data.artistBio !== undefined) updates.artist_bio = data.artistBio;
         if (data.artistPhotoUrl !== undefined) updates.artist_photo_url = data.artistPhotoUrl;
+        if (data.artists !== undefined) updates.artists = data.artists;
 
         if (Object.keys(updates).length === 0) return;
 
