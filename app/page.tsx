@@ -133,11 +133,12 @@ export default function GalleryPage() {
               className="w-full h-full flex items-center justify-center pointer-events-auto"
               onClick={() => setIsExpanded(!isExpanded)}
             >
-              <div className={cn("relative w-full h-full flex items-center justify-center transition-transform", isExpanded ? "cursor-zoom-out" : "cursor-zoom-in")}>
+              <div className={cn("relative w-full h-full flex items-center justify-center transition-transform", isExpanded ? "cursor-auto" : "cursor-zoom-in")}>
                 <ZoomableImage
                   src={currentArtwork.imageUrl}
                   alt={currentArtwork.title}
                   isActive={true}
+                  isZoomEnabled={isExpanded}
                 />
               </div>
             </motion.div>
