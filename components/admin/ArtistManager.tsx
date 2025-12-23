@@ -168,9 +168,9 @@ export function ArtistManager({ artists, artworks = [], onUpdate, onUploadImage,
                         <button onClick={resetForm}><X className="w-5 h-5 text-neutral-400" /></button>
                     </div>
 
-                    <div className="flex gap-4">
+                    <div className="flex flex-col md:flex-row gap-4">
                         {/* Photo Input */}
-                        <div className="shrink-0">
+                        <div className="shrink-0 flex justify-center md:block">
                             <div
                                 className="w-24 h-24 bg-neutral-700 rounded-lg overflow-hidden relative group cursor-pointer border border-neutral-600"
                                 onClick={() => document.getElementById('artist-form-photo')?.click()}

@@ -78,7 +78,7 @@ export default function ExhibitionDetailsPage() {
     const uniqueArtists = Array.from(new Set(allArtworks?.map(a => a.artist).filter(Boolean))).sort();
 
     return (
-        <div className="p-8 max-w-6xl mx-auto h-[calc(100vh-2rem)] flex flex-col">
+        <div className="p-4 md:p-8 max-w-6xl mx-auto h-[calc(100vh-2rem)] flex flex-col">
             <div className="flex items-center gap-4 mb-8 shrink-0">
                 <Link href="/admin/dashboard" className="p-2 -ml-2 text-neutral-400 hover:text-white hover:bg-white/10 rounded-full">
                     <ArrowLeft className="w-5 h-5" />
@@ -147,7 +147,7 @@ export default function ExhibitionDetailsPage() {
                         <select
                             value={artistFilter}
                             onChange={(e) => setArtistFilter(e.target.value)}
-                            className="bg-neutral-800 border border-neutral-700 text-sm rounded-lg px-2 py-1 focus:outline-none focus:border-neutral-500 max-w-[150px]"
+                            className="bg-neutral-800 border border-neutral-700 text-sm rounded-lg px-3 py-2 focus:outline-none focus:border-neutral-500 w-full md:w-auto md:max-w-[150px]"
                         >
                             <option value="">All Artists</option>
                             {uniqueArtists.map(artist => (
