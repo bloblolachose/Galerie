@@ -19,6 +19,7 @@ import {
     verticalListSortingStrategy
 } from '@dnd-kit/sortable';
 import { SortableArtwork } from "@/components/admin/SortableArtwork";
+import { ArtistManager } from "@/components/admin/ArtistManager";
 import { ArrowLeft, Plus } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
@@ -82,55 +83,11 @@ export default function ExhibitionDetailsPage() {
 
             {/* Artist Details Section */}
             <div className="mb-8 p-6 bg-neutral-900/50 rounded-xl border border-neutral-800">
-                <h2 className="font-semibold mb-4">Artist Details</h2>
-                <div className="flex gap-6 items-start">
-                    {/* Photo Upload */}
-                    <div className="shrink-0">
-                        <div
-                            className="w-32 h-32 bg-neutral-800 rounded-lg overflow-hidden border border-neutral-700 relative group cursor-pointer"
-                            onClick={() => document.getElementById('artist-photo-input')?.click()}
-                        >
-                            {exhibition.artistPhotoUrl ? (
-                                <img src={exhibition.artistPhotoUrl} alt="Artist" className="w-full h-full object-cover" />
-                            ) : (
-                                <div className="w-full h-full flex items-center justify-center text-neutral-500 text-xs text-center p-2">
-                                    Upload Photo
-                                </div>
-                            )}
-                            <div className="absolute inset-0 bg-black/50 items-center justify-center hidden group-hover:flex text-xs text-white">
-                                {exhibition.artistPhotoUrl ? "Change" : "Upload"}
-                            </div>
-                        </div>
-                        <input
-                            id="artist-photo-input"
-                            type="file"
-                            className="hidden"
-                            accept="image/*"
-                            onChange={async (e) => {
-                                const file = e.target.files?.[0];
-                                if (!file) return;
-                                try {
-                                    const url = await uploadImage(file);
-                                    await updateExhibitionDetails(id, { artistPhotoUrl: url });
-                                } catch (err) {
-                                    console.error("Failed to upload artist photo", err);
-                                    alert("Failed to upload photo");
-                                }
-                            }}
-                        />
-                    </div>
-
-                    {/* Bio Textarea */}
-                    <div className="flex-1">
-                        <textarea
-                            className="w-full h-32 bg-neutral-800 border-none rounded-lg p-3 text-sm text-white resize-none focus:ring-1 focus:ring-white/20"
-                            placeholder="Artist Biography..."
-                            defaultValue={exhibition.artistBio || ""}
-                            onBlur={(e) => updateExhibitionDetails(id, { artistBio: e.target.value })}
-                        />
-                        <p className="text-xs text-neutral-500 mt-2">Auto-saved on blur.</p>
-                    </div>
-                </div>
+                <ArtistManager
+                    artists={exhibition.artists || []}
+                    onUpdate={(newArtists) => updateExhibitionDetails(id, { artists: newArtists })}
+                    onUploadImage={uploadImage}
+                />
             </div>
 
             <div className="flex-1 grid grid-cols-1 lg:grid-cols-2 gap-8 overflow-hidden">
