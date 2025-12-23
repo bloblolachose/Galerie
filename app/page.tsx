@@ -4,6 +4,7 @@ import { useActiveExhibition } from "@/hooks/useGalleryData";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ZoomableImage } from "@/components/gallery/ZoomableImage";
+import { HomeMenu } from "@/components/gallery/HomeMenu";
 import { ChevronLeft, ChevronRight, Info, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -13,6 +14,7 @@ export default function GalleryPage() {
   const [direction, setDirection] = useState(0);
   const [showInfo, setShowInfo] = useState(false); // Can default to true or false
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showMenu, setShowMenu] = useState(false);
 
   // Keyboard navigation
   useEffect(() => {
@@ -227,7 +229,10 @@ export default function GalleryPage() {
       </button>
 
       {/* Top Left Branding - Nude & Shadow */}
-      <div className={cn("absolute top-0 left-0 p-8 z-20 pointer-events-none flex flex-col items-start gap-1 transition-opacity duration-300", isExpanded ? "opacity-0" : "opacity-100")}>
+      <div
+        className={cn("absolute top-0 left-0 p-8 z-20 flex flex-col items-start gap-1 transition-opacity duration-300 pointer-events-auto cursor-pointer", isExpanded ? "opacity-0" : "opacity-100")}
+        onClick={() => setShowMenu(true)}
+      >
         <img
           src="/logo.png"
           alt="Logo"
@@ -244,6 +249,22 @@ export default function GalleryPage() {
           {String(index + 1).padStart(2, '0')} / {String(artworks.length).padStart(2, '0')}
         </div>
       </div>
+
+      {/* Full Screen Home Menu */}
+      <AnimatePresence>
+        {showMenu && (
+          <HomeMenu
+            isOpen={showMenu}
+            onClose={() => setShowMenu(false)}
+            exhibition={exhibition}
+            artworks={artworks}
+            onNavigate={(idx) => {
+              setIndex(idx);
+              setShowMenu(false);
+            }}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }
