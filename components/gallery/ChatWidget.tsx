@@ -1,6 +1,6 @@
 "use client";
 
-import { useChat } from 'ai/react';
+import { useChat } from '@ai-sdk/react';
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -61,8 +61,8 @@ export function ChatWidget() {
                                 >
                                     <div
                                         className={`max-w-[85%] p-3 rounded-2xl text-sm ${m.role === 'user'
-                                                ? 'bg-black text-white rounded-br-none'
-                                                : 'bg-neutral-100 text-black rounded-bl-none'
+                                            ? 'bg-black text-white rounded-br-none'
+                                            : 'bg-neutral-100 text-black rounded-bl-none'
                                             }`}
                                     >
                                         {m.content}
