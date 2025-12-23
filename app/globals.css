@@ -54,11 +54,11 @@
 }
 
 :root {
-  /* Apple Minimalist / Cream Theme */
-  --background: 40 10% 98%;
-  /* Very light cream #FCFAF8 */
-  --foreground: 0 0% 11%;
-  /* Soft Black #1D1D1F */
+  /* Apple Minimalist / White Theme (Matches "Villa Sonneville" logo) */
+  --background: 0 0% 100%;
+  /* Pure White */
+  --foreground: 0 0% 0%;
+  /* Pure Black */
 
   --card: 0 0% 100%;
   --card-foreground: 0 0% 11%;
