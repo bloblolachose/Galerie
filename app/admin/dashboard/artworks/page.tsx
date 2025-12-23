@@ -1,17 +1,46 @@
 "use client";
 
-import { useState, useCallback } from "react";
-import { useAllArtworks } from "@/hooks/useGalleryData";
+import { useState, useCallback, useMemo } from "react";
+import { useAllArtworks, useAllExhibitions } from "@/hooks/useGalleryData";
 import { useAdminActions } from "@/hooks/useAdminActions";
 import { Plus, Trash2, Search, Upload, X, Loader2 } from "lucide-react";
 import { useDropzone } from "react-dropzone";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 export default function ArtworksPage() {
     const artworks = useAllArtworks();
+    const { exhibitions } = useAllExhibitions(); // Use exhibitions to get artists
     const { createArtwork, deleteArtwork, uploadImage } = useAdminActions();
+    const router = useRouter();
+
     const [isCreating, setIsCreating] = useState(false);
     const [isProcessing, setIsProcessing] = useState(false);
+
+    // Extract unique artists from all exhibitions
+    const availableArtists = useMemo(() => {
+        if (!exhibitions) return [];
+        const artistMap = new Map();
+
+        exhibitions.forEach(ex => {
+            if (ex.artists && ex.artists.length > 0) {
+                ex.artists.forEach(a => artistMap.set(a.name, a.name));
+            } else if (ex.artistBio) {
+                // Legacy fallback: assuming 'Artist' was typed manually before, 
+                // but we don't have a name in the legacy fields usually? 
+                // actually legacy only had 'artistBio' and 'artistPhotoUrl' details, 
+                // the name was likely in the artwork? 
+                // We'll trust the new 'artists' array.
+            }
+        });
+
+        // Also add artists already present in existing artworks (for consistency)
+        artworks?.forEach(a => {
+            if (a.artist) artistMap.set(a.artist, a.artist);
+        });
+
+        return Array.from(artistMap.values()).sort();
+    }, [exhibitions, artworks]);
 
     const [formData, setFormData] = useState({
         title: "",
@@ -23,6 +52,8 @@ export default function ArtworksPage() {
         description: "",
         price: ""
     });
+
+    const [isManualArtist, setIsManualArtist] = useState(false);
 
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
@@ -56,18 +87,28 @@ export default function ArtworksPage() {
             return;
         }
 
-        await createArtwork(formData);
-        setIsCreating(false);
-        setFormData({
-            title: "",
-            artist: "",
-            year: "",
-            medium: "",
-            dimensions: "",
-            imageUrl: "",
-            description: "",
-            price: ""
-        });
+        try {
+            await createArtwork(formData);
+            toast.success("Artwork added!");
+
+            // Force a router refresh to help sync state if subscriptions lag
+            router.refresh();
+
+            setIsCreating(false);
+            setFormData({
+                title: "",
+                artist: "",
+                year: "",
+                medium: "",
+                dimensions: "",
+                imageUrl: "",
+                description: "",
+                price: ""
+            });
+        } catch (err) {
+            console.error(err);
+            toast.error("Failed to create artwork");
+        }
     };
 
     return (
@@ -131,13 +172,54 @@ export default function ArtworksPage() {
                                 onChange={e => setFormData({ ...formData, title: e.target.value })}
                                 required
                             />
-                            <input
-                                className="bg-neutral-950 border border-neutral-800 rounded-lg p-3 text-sm focus:border-white outline-none text-white placeholder-neutral-500"
-                                placeholder="Artist"
-                                value={formData.artist}
-                                onChange={e => setFormData({ ...formData, artist: e.target.value })}
-                                required
-                            />
+
+                            {/* Artist Selection */}
+                            <div className="relative">
+                                {!isManualArtist && availableArtists.length > 0 ? (
+                                    <div className="flex gap-2">
+                                        <select
+                                            className="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-3 text-sm focus:border-white outline-none text-white placeholder-neutral-500 appearance-none"
+                                            value={formData.artist}
+                                            onChange={e => setFormData({ ...formData, artist: e.target.value })}
+                                            required={!formData.artist}
+                                        >
+                                            <option value="">Select Artist...</option>
+                                            {availableArtists.map(artist => (
+                                                <option key={artist} value={artist}>{artist}</option>
+                                            ))}
+                                        </select>
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsManualArtist(true)}
+                                            className="px-3 py-2 bg-neutral-800 rounded-lg text-xs text-neutral-400 hover:text-white shrink-0"
+                                            title="Type manually"
+                                        >
+                                            Type
+                                        </button>
+                                    </div>
+                                ) : (
+                                    <div className="flex gap-2">
+                                        <input
+                                            className="w-full bg-neutral-950 border border-neutral-800 rounded-lg p-3 text-sm focus:border-white outline-none text-white placeholder-neutral-500"
+                                            placeholder="Artist Name"
+                                            value={formData.artist}
+                                            onChange={e => setFormData({ ...formData, artist: e.target.value })}
+                                            required
+                                        />
+                                        {availableArtists.length > 0 && (
+                                            <button
+                                                type="button"
+                                                onClick={() => setIsManualArtist(false)}
+                                                className="px-3 py-2 bg-neutral-800 rounded-lg text-xs text-neutral-400 hover:text-white shrink-0"
+                                                title="Select from list"
+                                            >
+                                                List
+                                            </button>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+
                             <input
                                 className="bg-neutral-950 border border-neutral-800 rounded-lg p-3 text-sm focus:border-white outline-none text-white placeholder-neutral-500"
                                 placeholder="Year"
@@ -162,8 +244,6 @@ export default function ArtworksPage() {
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
                             />
-                            {/* Hidden price input if needed, keeping it for data structure but potentially unused visually */}
-                            {/* <input value={formData.price} ... /> */}
                         </div>
 
                         <div className="flex justify-end gap-2 pt-4 border-t border-neutral-800">
