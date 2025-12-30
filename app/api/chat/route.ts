@@ -80,6 +80,11 @@ INSTRUCTIONS:
             messages,
         });
 
+        if (typeof (result as any).toDataStreamResponse !== 'function') {
+            const keys = Object.keys(result).join(', ');
+            throw new Error(`DEBUG: Method missing. Result keys: ${keys}`);
+        }
+
         return (result as any).toDataStreamResponse();
     } catch (error: any) {
         console.error("API Error:", error);
