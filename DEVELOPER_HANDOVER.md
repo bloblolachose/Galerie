@@ -37,6 +37,17 @@
    - Native App auto-updates (because it points to Vercel URL).
 
 ## 📝 Recent Changes
-- Migrated from IndexDB (Local) to Supabase (Cloud).
-- Implemented "Magic Sync" for iPad.
-- Added file upload to Cloud Storage.
+- **AI Chatbot (Phase 7):** Implemented a non-streaming Mistral AI chatbot (`/api/chat`). Switched from streaming to JSON for 100% reliability.
+- **Reservation System (Phase 8):**
+    - Added `status` field to artworks (Available, Reserved, Sold).
+    - Created `reservations` table for visitor interest.
+    - Added "Réserver" button and modal to the gallery.
+    - Created Admin Inbox to manage reservation requests.
+    - Updated RLS policies to allow public reservation submissions and status updates.
+
+## 🧠 Memory Persistence (Important)
+If you start a new session or I seem to "forget" the context:
+1. **Developer Handover:** Tell me to read this file (`DEVELOPER_HANDOVER.md`).
+2. **Current Brain:** Tell me to look at the `.gemini/antigravity/brain/` folder. It contains my active checklist (`task.md`) and implementation notes.
+3. **Context Reset:** Simply send: "Read the handover and project files to get up to speed."
+
