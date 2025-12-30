@@ -49,6 +49,7 @@ export default function GalleryPage() {
     <div className="h-screen bg-background flex flex-col items-center justify-center text-muted-foreground gap-4 border-4 border-black">
       <Loader2 className="w-8 h-8 animate-spin text-foreground" />
       <p className="font-oswald uppercase tracking-widest">Loading...</p>
+      <p className="text-xs text-neutral-400 font-sans tracking-widest mt-4">made by BLOBLOLACHOSE</p>
     </div>
   );
   if (exhibition === null) return (

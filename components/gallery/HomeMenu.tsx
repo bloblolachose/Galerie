@@ -191,6 +191,10 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
                                 No artworks found for this selection.
                             </div>
                         )}
+
+                        <div className="pt-12 text-center md:text-right">
+                            <p className="text-[10px] text-neutral-300 font-sans tracking-widest uppercase">made by BLOBLOLACHOSE</p>
+                        </div>
                     </div>
                 </div>
 
