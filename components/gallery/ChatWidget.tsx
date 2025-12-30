@@ -48,14 +48,14 @@ export function ChatWidget() {
     };
 
     return (
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-none">
+        <div className="fixed bottom-6 right-6 z-[60] flex flex-col items-end">
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9, y: 20 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                        className="pointer-events-auto bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl w-[350px] md:w-[400px] h-[500px] flex flex-col overflow-hidden mb-4"
+                        className="bg-white/90 backdrop-blur-xl border border-white/20 shadow-2xl rounded-2xl w-[350px] md:w-[400px] h-[500px] flex flex-col overflow-hidden mb-4"
                     >
                         {/* Header */}
                         <div className="p-4 border-b border-black/5 flex items-center justify-between bg-white/50">
@@ -121,9 +121,11 @@ export function ChatWidget() {
                             <input
                                 value={localInput}
                                 onChange={(e) => setLocalInput(e.target.value)}
+                                onTouchStart={(e) => e.stopPropagation()}
+                                onMouseDown={(e) => e.stopPropagation()}
                                 placeholder="Ask a question..."
                                 style={{ userSelect: 'text', WebkitUserSelect: 'text', touchAction: 'manipulation' }}
-                                className="flex-1 bg-neutral-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black/10"
+                                className="flex-1 bg-neutral-100 text-black rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black/10"
                             />
                             <button
                                 type="submit"
@@ -142,7 +144,7 @@ export function ChatWidget() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setIsOpen(!isOpen)}
-                className="pointer-events-auto h-14 w-14 rounded-full bg-black text-white shadow-lg flex items-center justify-center hover:bg-neutral-900 transition-colors"
+                className="h-14 w-14 rounded-full bg-black text-white shadow-lg flex items-center justify-center hover:bg-neutral-900 transition-colors"
             >
                 {isOpen ? <X className="w-6 h-6" /> : <MessageCircle className="w-6 h-6" />}
             </motion.button>
