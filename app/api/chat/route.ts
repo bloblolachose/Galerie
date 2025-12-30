@@ -10,6 +10,10 @@ export async function POST(req: Request) {
         const { messages } = await req.json();
 
         // 1. Fetch context (Exhibitions & Artworks)
+        if (!process.env.MISTRAL_API_KEY) {
+            throw new Error("Missing MISTRAL_API_KEY in server environment");
+        }
+
         const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
         const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
         const supabase = createClient(supabaseUrl, supabaseKey);

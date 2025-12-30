@@ -10,6 +10,7 @@ export function ChatWidget() {
     const [debugStatus, setDebugStatus] = useState<string>("Ready");
 
     const chat = (useChat({
+        api: '/api/chat',
         onError: (err: any) => {
             console.error("Chat Error:", err);
             setDebugStatus(`Error: ${err.message}`);
@@ -66,7 +67,8 @@ export function ChatWidget() {
             if (append) {
                 await append({ role: 'user', content: message });
             } else {
-                setDebugStatus("Error: Append function missing");
+                const keys = Object.keys(chat).join(", ");
+                setDebugStatus(`Error: Append missing. Keys: ${keys}`);
             }
         } catch (err: any) {
             setDebugStatus(`Client Error: ${err.message}`);
