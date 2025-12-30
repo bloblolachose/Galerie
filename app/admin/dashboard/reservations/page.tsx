@@ -25,15 +25,18 @@ export default function ReservationsPage() {
 
     const fetchReservations = async () => {
         setLoading(true);
+        console.log("Fetching reservations...");
         const { data, error } = await supabase
             .from('reservations')
             .select('*, artworks(title, image_url)')
             .order('created_at', { ascending: false });
 
         if (error) {
-            console.error(error);
-            toast.error("Failed to load reservations");
+            console.error('Fetch Error:', error);
+            toast.error("Failed to load reservations: " + error.message);
         } else {
+            console.log("Reservations found:", data?.length);
+            if (data) console.dir(data);
             setReservations(data as any || []);
         }
         setLoading(false);
@@ -44,17 +47,34 @@ export default function ReservationsPage() {
     }, []);
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this request?")) return;
+        if (!confirm("Voulez-vous vraiment supprimer cette demande ?\nCela remettra l'œuvre en 'Disponible' dans la galerie.")) return;
 
+        // Get the reservation to find the artwork_id
+        const resToDelete = reservations.find(r => r.id === id);
+        const artworkId = resToDelete?.artworkId || (resToDelete as any)?.artwork_id;
+
+        if (artworkId) {
+            // 1. Reset artwork status
+            const { error: resetError } = await supabase
+                .from('artworks')
+                .update({ status: 'available' })
+                .eq('id', artworkId);
+
+            if (resetError) {
+                console.error("Error resetting status:", resetError);
+            }
+        }
+
+        // 2. Delete the reservation
         const { error } = await supabase
             .from('reservations')
             .delete()
             .eq('id', id);
 
         if (error) {
-            toast.error("Failed to delete");
+            toast.error("Échec de la suppression");
         } else {
-            toast.success("Reservation removed");
+            toast.success("Demande supprimée et œuvre libérée");
             fetchReservations();
         }
     };
@@ -95,26 +115,26 @@ export default function ReservationsPage() {
                             <div key={res.id} className="bg-white border border-neutral-200 rounded-xl p-6 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center">
                                 {/* Artwork Thumb */}
                                 <div className="w-16 h-16 bg-neutral-100 rounded-lg overflow-hidden flex-shrink-0 border border-neutral-100">
-                                    {artwork?.image_url && (
-                                        <img src={artwork.image_url} alt="" className="w-full h-full object-cover" />
+                                    {(artwork as any)?.image_url && (
+                                        <img src={(artwork as any).image_url} alt="" className="w-full h-full object-cover" />
                                     )}
                                 </div>
 
                                 {/* Visitor Info */}
                                 <div className="flex-1 space-y-1">
                                     <div className="flex items-center gap-2">
-                                        <h3 className="font-bold">{visitorName || "Unknown Visitor"}</h3>
+                                        <h3 className="font-bold">{visitorName || "Anonyme"}</h3>
                                         <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-[10px] uppercase font-bold rounded-full">
-                                            {res.status || 'pending'}
+                                            {res.status || 'En attente'}
                                         </span>
                                     </div>
                                     <p className="text-sm text-neutral-500">
-                                        Interested in <span className="font-medium text-black">{artwork?.title || "Unknown Artwork"}</span>
+                                        Intéressé par <span className="font-medium text-black">{(artwork as any)?.title || "Œuvre inconnue"}</span>
                                     </p>
                                     <div className="flex flex-wrap gap-4 text-xs text-neutral-400 pt-1">
                                         <div className="flex items-center gap-1">
                                             <Mail className="w-3 h-3" />
-                                            {visitorEmail}
+                                            {visitorEmail || "Pas d'email"}
                                         </div>
                                         {visitorPhone ? (
                                             <div className="flex items-center gap-1">
@@ -124,7 +144,7 @@ export default function ReservationsPage() {
                                         ) : null}
                                         <div className="flex items-center gap-1">
                                             <Calendar className="w-3 h-3" />
-                                            {createdAt ? new Date(createdAt).toLocaleDateString() : 'N/A'}
+                                            {createdAt ? new Date(createdAt).toLocaleDateString('fr-FR') : 'Date inconnue'}
                                         </div>
                                     </div>
                                 </div>
@@ -132,16 +152,16 @@ export default function ReservationsPage() {
                                 {/* Actions */}
                                 <div className="flex gap-2">
                                     <a
-                                        href={`mailto:${visitorEmail}?subject=Concerning your interest in ${artwork?.title}`}
+                                        href={`mailto:${visitorEmail}?subject=Concernant votre intérêt pour ${(artwork as any)?.title}`}
                                         className="p-2 bg-black text-white rounded-lg hover:bg-neutral-800 transition-colors"
-                                        title="Contact via Email"
+                                        title="Contacter par Email"
                                     >
                                         <Mail className="w-4 h-4" />
                                     </a>
                                     <button
                                         onClick={() => handleDelete(res.id)}
                                         className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors"
-                                        title="Delete Request"
+                                        title="Supprimer la demande"
                                     >
                                         <Trash2 className="w-4 h-4" />
                                     </button>
