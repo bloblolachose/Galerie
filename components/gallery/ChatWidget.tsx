@@ -96,7 +96,10 @@ export function ChatWidget() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-sm">Gallery Guide</h3>
-                                    <p className="text-[10px] text-neutral-500">Status (v2.1): {debugStatus}</p>
+                                    <p className="text-[10px] text-neutral-500">
+                                        Status (v2.2): {debugStatus} <br />
+                                        Bot: {messages.filter((m: any) => m.role !== 'user').pop()?.content.slice(0, 10) || "missing"}
+                                    </p>
                                 </div>
                             </div>
                             <button
