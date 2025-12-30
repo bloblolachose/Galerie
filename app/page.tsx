@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ZoomableImage } from "@/components/gallery/ZoomableImage";
 import { HomeMenu } from "@/components/gallery/HomeMenu";
 import { ChatWidget } from "@/components/gallery/ChatWidget";
+import { ReservationModal } from "@/components/gallery/ReservationModal";
 import { ChevronLeft, ChevronRight, Info, Loader2, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -16,6 +17,7 @@ export default function GalleryPage() {
   const [showInfo, setShowInfo] = useState(false); // Can default to true or false
   const [isExpanded, setIsExpanded] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [isReserveOpen, setIsReserveOpen] = useState(false);
 
   // Keyboard navigation
   useEffect(() => {
@@ -220,6 +222,27 @@ export default function GalleryPage() {
               {currentArtwork.description ? currentArtwork.description : "No description available."}
             </p>
           </div>
+
+          {/* Reservation / Status Action */}
+          <div className="pt-2">
+            {!currentArtwork.status || currentArtwork.status === 'available' ? (
+              <button
+                onClick={() => setIsReserveOpen(true)}
+                className="w-full bg-black text-white rounded-xl py-3 font-bold uppercase tracking-wide text-sm hover:bg-neutral-800 transition-colors"
+              >
+                Réserver cette œuvre
+              </button>
+            ) : (
+              <div className={cn(
+                "w-full rounded-xl py-3 font-bold uppercase tracking-wide text-sm text-center border",
+                currentArtwork.status === 'sold'
+                  ? "bg-red-50 text-red-600 border-red-100"
+                  : "bg-orange-50 text-orange-600 border-orange-100"
+              )}>
+                {currentArtwork.status === 'sold' ? 'Vendu' : 'Réservé'}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -277,6 +300,19 @@ export default function GalleryPage() {
           />
         )}
       </AnimatePresence>
+
+      {/* Reservation Modal */}
+      <ReservationModal
+        artwork={currentArtwork}
+        isOpen={isReserveOpen}
+        onClose={() => setIsReserveOpen(false)}
+        onSuccess={() => {
+          // We need to refresh data to show 'Reserved' status immediately
+          // Since we use SWR-like pattern via custom hook, a full reload is the simplest way for a 'static' app feel
+          // Or we can rely on realtime subscription if implemented. Ideally window.location.reload() for MVP.
+          window.location.reload();
+        }}
+      />
     </div>
   );
 }

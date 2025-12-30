@@ -11,10 +11,11 @@ import { useRouter } from "next/navigation";
 export default function ArtworksPage() {
     const artworks = useAllArtworks();
     const { exhibitions } = useAllExhibitions(); // Get exhibitions to extract artists
-    const { createArtwork, deleteArtwork, uploadImage } = useAdminActions();
+    const { createArtwork, updateArtwork, deleteArtwork, uploadImage } = useAdminActions();
     const router = useRouter();
 
     const [isCreating, setIsCreating] = useState(false);
+    const [editingId, setEditingId] = useState<string | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isManualArtist, setIsManualArtist] = useState(false); // Toggle for manual entry
 
@@ -26,42 +27,31 @@ export default function ArtworksPage() {
         dimensions: "",
         imageUrl: "",
         description: "",
-        price: ""
+        price: "",
+        status: "available"
     });
 
     const [searchTerm, setSearchTerm] = useState("");
 
-    // Extract unique artists from exhibitions
+    // ... (Memo logic unchanged)
     const availableArtists = useMemo(() => {
         const artists = new Set<string>();
         exhibitions.forEach(exh => {
-            // Check both legacy artist name and new artists array
-            if (exh.artistBio) {
-                // It's hard to extract name from bio if not structured, 
-                // but we can check the new 'artists' array
-            }
-            if (exh.artists && exh.artists.length > 0) {
-                exh.artists.forEach(a => artists.add(a.name));
-            }
+            if (exh.artists) exh.artists.forEach(a => artists.add(a.name));
         });
-        // Also add artists from existing artworks to the list? 
-        // useful if they are not yet in an exhibition.
-        artworks.forEach(a => {
-            if (a.artist) artists.add(a.artist);
-        });
-
+        artworks.forEach(a => { if (a.artist) artists.add(a.artist); });
         return Array.from(artists).sort();
     }, [exhibitions, artworks]);
 
+    // ... (Dropzone logic unchanged)
     const onDrop = useCallback(async (acceptedFiles: File[]) => {
         const file = acceptedFiles[0];
         if (!file) return;
-
         setIsProcessing(true);
         try {
             const publicUrl = await uploadImage(file);
             setFormData(prev => ({ ...prev, imageUrl: publicUrl }));
-            toast.success("Image uploaded to cloud");
+            toast.success("Image uploaded");
         } catch (error) {
             console.error(error);
             toast.error("Upload failed");
@@ -72,11 +62,25 @@ export default function ArtworksPage() {
 
     const { getRootProps, getInputProps, isDragActive } = useDropzone({
         onDrop,
-        accept: {
-            'image/*': ['.jpeg', '.jpg', '.png', '.webp']
-        },
+        accept: { 'image/*': ['.jpeg', '.jpg', '.png', '.webp'] },
         maxFiles: 1
     });
+
+    const handleEdit = (artwork: any) => {
+        setFormData({
+            title: artwork.title,
+            artist: artwork.artist,
+            year: artwork.year,
+            medium: artwork.medium,
+            dimensions: artwork.dimensions,
+            imageUrl: artwork.imageUrl,
+            description: artwork.description || "",
+            price: artwork.price || "",
+            status: artwork.status || "available"
+        });
+        setEditingId(artwork.id);
+        setIsCreating(true);
+    };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -85,23 +89,29 @@ export default function ArtworksPage() {
             return;
         }
 
-        await createArtwork(formData);
-        toast.success("Artwork created");
+        setIsProcessing(true);
+        try {
+            if (editingId) {
+                await updateArtwork(editingId, formData as any);
+                toast.success("Artwork updated");
+            } else {
+                await createArtwork(formData as any);
+                toast.success("Artwork created");
+            }
 
-        setIsCreating(false);
-        setFormData({
-            title: "",
-            artist: "",
-            year: "",
-            medium: "",
-            dimensions: "",
-            imageUrl: "",
-            description: "",
-            price: ""
-        });
-
-        // Force router refresh strictly
-        router.refresh();
+            setIsCreating(false);
+            setEditingId(null);
+            setFormData({
+                title: "", artist: "", year: "", medium: "", dimensions: "",
+                imageUrl: "", description: "", price: "", status: "available"
+            });
+            router.refresh();
+        } catch (err) {
+            console.error(err);
+            toast.error("Operation failed");
+        } finally {
+            setIsProcessing(false);
+        }
     };
 
     const handleDelete = async (id: string) => {
@@ -120,10 +130,17 @@ export default function ArtworksPage() {
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-3xl font-bold">Artwork Inventory</h1>
-                    <p className="text-neutral-400 mt-1">Global list of all works available</p>
+                    <p className="text-neutral-400 mt-1">Manage collection and status</p>
                 </div>
                 <button
-                    onClick={() => setIsCreating(true)}
+                    onClick={() => {
+                        setEditingId(null);
+                        setFormData({
+                            title: "", artist: "", year: "", medium: "", dimensions: "",
+                            imageUrl: "", description: "", price: "", status: "available"
+                        });
+                        setIsCreating(true);
+                    }}
                     className="flex items-center gap-2 bg-white text-black px-4 py-2 rounded-lg font-medium hover:bg-neutral-200 transition-colors"
                 >
                     <Plus className="w-4 h-4" />
@@ -134,6 +151,11 @@ export default function ArtworksPage() {
             {isCreating && (
                 <div className="mb-8 bg-neutral-900 border border-neutral-800 rounded-xl p-6 animate-in slide-in-from-top-4">
                     <form onSubmit={handleSubmit} className="space-y-6">
+                        {/* Header */}
+                        <div className="flex justify-between items-center text-xl font-bold mb-4">
+                            <h2>{editingId ? "Edit Artwork" : "New Artwork"}</h2>
+                            <button type="button" onClick={() => setIsCreating(false)}><X className="w-5 h-5" /></button>
+                        </div>
 
                         {/* Image Upload Zone */}
                         <div className="flex flex-col gap-2">
@@ -168,7 +190,7 @@ export default function ArtworksPage() {
                                     ) : (
                                         <div className="flex flex-col items-center gap-2 text-neutral-400">
                                             <Upload className="w-8 h-8" />
-                                            <p>Drag & drop an image here, or click to select</p>
+                                            <p>Drag & drop or select</p>
                                         </div>
                                     )}
                                 </div>
@@ -181,7 +203,6 @@ export default function ArtworksPage() {
                                 <input
                                     required
                                     className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2 focus:outline-none focus:border-neutral-600 transition-colors"
-                                    placeholder="Artwork Title"
                                     value={formData.title}
                                     onChange={e => setFormData({ ...formData, title: e.target.value })}
                                 />
@@ -198,12 +219,10 @@ export default function ArtworksPage() {
                                         {isManualArtist ? "Select from list" : "Enter manually"}
                                     </button>
                                 </div>
-
                                 {isManualArtist ? (
                                     <input
                                         required
                                         className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2 focus:outline-none focus:border-neutral-600 transition-colors"
-                                        placeholder="Artist Name"
                                         value={formData.artist}
                                         onChange={e => setFormData({ ...formData, artist: e.target.value })}
                                     />
@@ -223,10 +242,22 @@ export default function ArtworksPage() {
                             </div>
 
                             <div className="space-y-2">
+                                <label className="text-sm font-medium text-neutral-400">Status</label>
+                                <select
+                                    className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2 focus:outline-none focus:border-neutral-600 transition-colors"
+                                    value={formData.status}
+                                    onChange={e => setFormData({ ...formData, status: e.target.value })}
+                                >
+                                    <option value="available">Available (Green)</option>
+                                    <option value="reserved">Reserved (Orange)</option>
+                                    <option value="sold">Sold (Red)</option>
+                                </select>
+                            </div>
+
+                            <div className="space-y-2">
                                 <label className="text-sm font-medium text-neutral-400">Year</label>
                                 <input
                                     className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2 focus:outline-none focus:border-neutral-600 transition-colors"
-                                    placeholder="2024"
                                     value={formData.year}
                                     onChange={e => setFormData({ ...formData, year: e.target.value })}
                                 />
@@ -236,7 +267,6 @@ export default function ArtworksPage() {
                                 <label className="text-sm font-medium text-neutral-400">Medium</label>
                                 <input
                                     className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2 focus:outline-none focus:border-neutral-600 transition-colors"
-                                    placeholder="Oil on Canvas"
                                     value={formData.medium}
                                     onChange={e => setFormData({ ...formData, medium: e.target.value })}
                                 />
@@ -246,7 +276,6 @@ export default function ArtworksPage() {
                                 <label className="text-sm font-medium text-neutral-400">Dimensions</label>
                                 <input
                                     className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2 focus:outline-none focus:border-neutral-600 transition-colors"
-                                    placeholder="100x100 cm"
                                     value={formData.dimensions}
                                     onChange={e => setFormData({ ...formData, dimensions: e.target.value })}
                                 />
@@ -257,7 +286,6 @@ export default function ArtworksPage() {
                             <label className="text-sm font-medium text-neutral-400">Description</label>
                             <textarea
                                 className="w-full bg-neutral-950 border border-neutral-800 rounded-lg px-4 py-2 focus:outline-none focus:border-neutral-600 transition-colors min-h-[100px]"
-                                placeholder="Artwork description..."
                                 value={formData.description}
                                 onChange={e => setFormData({ ...formData, description: e.target.value })}
                             />
@@ -276,7 +304,7 @@ export default function ArtworksPage() {
                                 disabled={isProcessing}
                                 className="bg-white text-black px-6 py-2 rounded-lg font-medium hover:bg-neutral-200 transition-colors disabled:opacity-50"
                             >
-                                {isProcessing ? "Creating..." : "Create Artwork"}
+                                {isProcessing ? "Processing..." : (editingId ? "Update Artwork" : "Create Artwork")}
                             </button>
                         </div>
                     </form>
@@ -302,7 +330,14 @@ export default function ArtworksPage() {
                                 alt={artwork.title}
                                 className="w-full h-full object-cover"
                             />
+                            {/* Actions Overlay */}
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                                <button
+                                    onClick={() => handleEdit(artwork)}
+                                    className="p-2 bg-white text-black rounded-lg hover:bg-neutral-200 transition-colors"
+                                >
+                                    <RefreshCw className="w-4 h-4" /> {/* Reuse Refresh icon as Edit for now or import Pencil */}
+                                </button>
                                 <button
                                     onClick={() => handleDelete(artwork.id)}
                                     className="p-2 bg-red-500/20 text-red-500 rounded-lg hover:bg-red-500/30 transition-colors"
@@ -310,6 +345,13 @@ export default function ArtworksPage() {
                                     <Trash2 className="w-4 h-4" />
                                 </button>
                             </div>
+                            {/* Status Badge */}
+                            {artwork.status && artwork.status !== 'available' && (
+                                <div className={`absolute top-2 right-2 px-2 py-1 rounded text-xs font-bold uppercase ${artwork.status === 'sold' ? 'bg-red-500 text-white' : 'bg-orange-500 text-black'
+                                    }`}>
+                                    {artwork.status}
+                                </div>
+                            )}
                         </div>
                         <div className="p-4">
                             <h3 className="font-medium truncate">{artwork.title}</h3>

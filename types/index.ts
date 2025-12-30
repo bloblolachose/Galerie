@@ -8,6 +8,17 @@ export interface Artwork {
     imageUrl: string;
     description?: string;
     price?: string; // Optional, might not be shown
+    status?: 'available' | 'reserved' | 'sold'; // Status for commerce
+    createdAt: number;
+}
+
+export interface Reservation {
+    id: string;
+    artworkId: string;
+    visitorName: string;
+    visitorEmail: string;
+    visitorPhone?: string;
+    status: 'pending' | 'contacted' | 'closed';
     createdAt: number;
 }
 

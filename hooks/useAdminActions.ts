@@ -54,6 +54,7 @@ export function useAdminActions() {
                 dimensions: data.dimensions,
                 description: data.description,
                 image_url: data.imageUrl,
+                status: data.status,
             })
             .eq('id', id);
 

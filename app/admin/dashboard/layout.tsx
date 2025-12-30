@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useAdminStore } from "@/store/adminStore";
 import Link from "next/link";
-import { LogOut, LayoutGrid, Image as ImageIcon } from "lucide-react";
+import { LogOut, LayoutGrid, Image as ImageIcon, Mail } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +46,23 @@ export default function DashboardLayout({
                     >
                         <LayoutGrid className="w-5 h-5" />
                         <span className="hidden md:inline">Exhibitions</span>
+                    </Link>
+                    <Link
+                        href="/admin/dashboard/reservations"
+                        className={cn(
+                            "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group text-sm font-medium",
+                            pathname === "/admin/dashboard/reservations"
+                                ? "bg-white text-black shadow-lg shadow-black/5"
+                                : "text-neutral-400 hover:text-black hover:bg-neutral-100"
+                        )}
+                    >
+                        <div className={cn(
+                            "p-2 rounded-lg transition-colors",
+                            pathname === "/admin/dashboard/reservations" ? "bg-black text-white" : "bg-white border border-neutral-200 group-hover:border-neutral-300"
+                        )}>
+                            <Mail className="w-4 h-4" />
+                        </div>
+                        Inbox / Reservations
                     </Link>
                     <Link
                         href="/admin/dashboard/artworks"
