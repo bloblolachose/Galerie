@@ -7,7 +7,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
-    const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat() as any;
+    const chat = useChat() as any;
+    const { messages = [], input, handleInputChange, handleSubmit, isLoading } = chat;
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
