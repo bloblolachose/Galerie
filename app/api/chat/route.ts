@@ -80,12 +80,14 @@ INSTRUCTIONS:
             messages,
         });
 
-        if (typeof (result as any).toDataStreamResponse !== 'function') {
-            const keys = Object.keys(result).join(', ');
-            throw new Error(`DEBUG: Method missing. Result keys: ${keys}`);
-        }
-
-        return (result as any).toDataStreamResponse();
+        // Helper methods are missing, so we stream the baseStream directly
+        // Client is configured with streamProtocol: 'text'
+        return new Response((result as any).baseStream, {
+            headers: {
+                'Content-Type': 'text/plain; charset=utf-8',
+                'X-Content-Type-Options': 'nosniff'
+            }
+        });
     } catch (error: any) {
         console.error("API Error:", error);
         return new Response(JSON.stringify({ error: error.message || "Unknown server error" }), { status: 500 });
