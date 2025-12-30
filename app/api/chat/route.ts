@@ -74,13 +74,13 @@ INSTRUCTIONS:
             systemPrompt = "You are a ping-pong machine. Respond with 'pong' and nothing else.";
         }
 
-        const result = streamText({
+        const result = await streamText({
             model: mistral('mistral-large-latest'),
             system: systemPrompt,
             messages,
         });
 
-        return result.toTextStreamResponse();
+        return (result as any).toDataStreamResponse();
     } catch (error: any) {
         console.error("API Error:", error);
         return new Response(JSON.stringify({ error: error.message || "Unknown server error" }), { status: 500 });
