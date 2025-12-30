@@ -49,8 +49,9 @@ export function ChatWidget() {
 
     const [localInput, setLocalInput] = useState("");
 
-    // Explicitly destructure append
-    const { append } = chat;
+    // Identify the correct function to send message
+    // Runtime logs showed 'append' might be missing but 'sendMessage' exists
+    const sendMessageFn = chat.append || chat.sendMessage;
 
     // Manual submit handler
     const handleLocalSubmit = async (e: React.FormEvent) => {
@@ -64,11 +65,12 @@ export function ChatWidget() {
 
         try {
             // Send to chat hook
-            if (append) {
-                await append({ role: 'user', content: message });
+            if (sendMessageFn) {
+                setDebugStatus(chat.append ? "Sending with append..." : "Sending with sendMessage...");
+                await sendMessageFn({ role: 'user', content: message });
             } else {
                 const keys = Object.keys(chat).join(", ");
-                setDebugStatus(`Error: Append missing. Keys: ${keys}`);
+                setDebugStatus(`Error: No send text function. Keys: ${keys}`);
             }
         } catch (err: any) {
             setDebugStatus(`Client Error: ${err.message}`);
