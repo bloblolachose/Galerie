@@ -10,12 +10,11 @@ export function ChatWidget() {
     const [debugStatus, setDebugStatus] = useState<string>("Ready");
 
     const chat = (useChat({
-        api: '/api/chat',
-        onError: (err) => {
+        onError: (err: any) => {
             console.error("Chat Error:", err);
             setDebugStatus(`Error: ${err.message}`);
         },
-        onResponse: (response) => {
+        onResponse: (response: any) => {
             console.log("Response received:", response);
             if (!response.ok) {
                 setDebugStatus(`Server Error: ${response.status} ${response.statusText}`);
@@ -26,7 +25,7 @@ export function ChatWidget() {
         onFinish: () => {
             setDebugStatus("Ready (Last msg received)");
         }
-    }) as any) || {};
+    } as any) as any) || {};
 
     const {
         messages = [],
