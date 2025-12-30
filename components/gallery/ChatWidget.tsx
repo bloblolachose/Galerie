@@ -26,6 +26,27 @@ export function ChatWidget() {
         scrollToBottom();
     }, [messages]);
 
+
+    const [localInput, setLocalInput] = useState("");
+
+    // Explicitly destructure append
+    const { append } = chat;
+
+    // Manual submit handler
+    const handleLocalSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!localInput.trim() || isLoading) return;
+
+        // Optimistically clear input
+        const message = localInput;
+        setLocalInput("");
+
+        // Send to chat hook
+        if (append) {
+            await append({ role: 'user', content: message });
+        }
+    };
+
     return (
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end pointer-events-none">
             <AnimatePresence>
@@ -96,17 +117,17 @@ export function ChatWidget() {
                         </div>
 
                         {/* Input */}
-                        <form onSubmit={handleSubmit} className="p-3 bg-white/50 border-t border-black/5 flex gap-2">
+                        <form onSubmit={handleLocalSubmit} className="p-3 bg-white/50 border-t border-black/5 flex gap-2">
                             <input
-                                value={input}
-                                onChange={handleInputChange}
+                                value={localInput}
+                                onChange={(e) => setLocalInput(e.target.value)}
                                 placeholder="Ask a question..."
                                 style={{ userSelect: 'text', WebkitUserSelect: 'text', touchAction: 'manipulation' }}
                                 className="flex-1 bg-neutral-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black/10"
                             />
                             <button
                                 type="submit"
-                                disabled={!input.trim() || isLoading}
+                                disabled={!localInput.trim() || isLoading}
                                 className="w-9 h-9 flex items-center justify-center bg-black text-white rounded-full hover:scale-105 active:scale-95 transition-all disabled:opacity-50 disabled:scale-100"
                             >
                                 <Send className="w-4 h-4 ml-0.5" />
