@@ -74,7 +74,7 @@ INSTRUCTIONS:
             messages,
         });
 
-        return result.toTextStreamResponse();
+        return (result as any).toDataStreamResponse();
     } catch (error: any) {
         console.error("API Error:", error);
         return new Response(JSON.stringify({ error: error.message || "Unknown server error" }), { status: 500 });
