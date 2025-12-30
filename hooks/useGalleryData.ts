@@ -14,6 +14,8 @@ function camelCaseArtwork(a: any): Artwork {
         dimensions: a.dimensions,
         imageUrl: a.image_url,
         description: a.description,
+        price: a.price,
+        status: a.status,
         createdAt: new Date(a.created_at).getTime()
     };
 }

@@ -9,11 +9,13 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
         }
 
-        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-        const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
-        const supabase = createClient(supabaseUrl, supabaseKey);
+        const supabase = createClient(
+            process.env.NEXT_PUBLIC_SUPABASE_URL!,
+            process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+        );
 
         // 1. Create Reservation
+        console.log("Creating reservation for artwork:", artworkId);
         const { error: reservationError } = await supabase
             .from('reservations')
             .insert({
@@ -21,24 +23,33 @@ export async function POST(req: Request) {
                 visitor_name: visitorName,
                 visitor_email: visitorEmail,
                 visitor_phone: visitorPhone,
-                status: 'pending',
-                created_at: new Date().toISOString()
+                status: 'pending'
             });
 
-        if (reservationError) throw reservationError;
+        if (reservationError) {
+            console.error("Supabase Insert Error:", reservationError);
+            throw reservationError;
+        }
 
         // 2. Update Artwork Status to 'reserved' (Auto-lock)
+        console.log("Updating artwork status to reserved:", artworkId);
         const { error: artworkError } = await supabase
             .from('artworks')
             .update({ status: 'reserved' })
             .eq('id', artworkId);
 
-        if (artworkError) throw artworkError;
+        if (artworkError) {
+            console.error("Supabase Update Error:", artworkError);
+            throw artworkError;
+        }
 
         return NextResponse.json({ success: true });
 
     } catch (error: any) {
-        console.error("Reservation Error:", error);
-        return NextResponse.json({ error: error.message || "Unknown error" }, { status: 500 });
+        console.error("API Route Error:", error);
+        return NextResponse.json({
+            error: error.message || "Unknown error",
+            details: error
+        }, { status: 500 });
     }
 }

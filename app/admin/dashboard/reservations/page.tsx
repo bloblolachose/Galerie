@@ -84,63 +84,71 @@ export default function ReservationsPage() {
                 </div>
             ) : (
                 <div className="grid gap-4">
-                    {reservations.map((res) => (
-                        <div key={res.id} className="bg-white border border-neutral-200 rounded-xl p-6 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center">
-                            {/* Artwork Thumb */}
-                            <div className="w-16 h-16 bg-neutral-100 rounded-lg overflow-hidden flex-shrink-0 border border-neutral-100">
-                                {res.artworks?.image_url && (
-                                    <img src={res.artworks.image_url} alt="" className="w-full h-full object-cover" />
-                                )}
-                            </div>
+                    {reservations.map((res: any) => {
+                        const visitorName = res.visitorName || res.visitor_name;
+                        const visitorEmail = res.visitorEmail || res.visitor_email;
+                        const visitorPhone = res.visitorPhone || res.visitor_phone;
+                        const createdAt = res.createdAt || res.created_at;
+                        const artwork = res.artworks;
 
-                            {/* Visitor Info */}
-                            <div className="flex-1 space-y-1">
-                                <div className="flex items-center gap-2">
-                                    <h3 className="font-bold">{res.visitorName || (res as any).visitor_name}</h3>
-                                    <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-[10px] uppercase font-bold rounded-full">
-                                        Pending
-                                    </span>
+                        return (
+                            <div key={res.id} className="bg-white border border-neutral-200 rounded-xl p-6 shadow-sm flex flex-col md:flex-row gap-6 items-start md:items-center">
+                                {/* Artwork Thumb */}
+                                <div className="w-16 h-16 bg-neutral-100 rounded-lg overflow-hidden flex-shrink-0 border border-neutral-100">
+                                    {artwork?.image_url && (
+                                        <img src={artwork.image_url} alt="" className="w-full h-full object-cover" />
+                                    )}
                                 </div>
-                                <p className="text-sm text-neutral-500">
-                                    Interested in <span className="font-medium text-black">{(res.artworks as any)?.title}</span>
-                                </p>
-                                <div className="flex flex-wrap gap-4 text-xs text-neutral-400 pt-1">
-                                    <div className="flex items-center gap-1">
-                                        <Mail className="w-3 h-3" />
-                                        {res.visitorEmail || (res as any).visitor_email}
+
+                                {/* Visitor Info */}
+                                <div className="flex-1 space-y-1">
+                                    <div className="flex items-center gap-2">
+                                        <h3 className="font-bold">{visitorName || "Unknown Visitor"}</h3>
+                                        <span className="px-2 py-0.5 bg-orange-100 text-orange-700 text-[10px] uppercase font-bold rounded-full">
+                                            {res.status || 'pending'}
+                                        </span>
                                     </div>
-                                    {res.visitorPhone || (res as any).visitor_phone ? (
+                                    <p className="text-sm text-neutral-500">
+                                        Interested in <span className="font-medium text-black">{artwork?.title || "Unknown Artwork"}</span>
+                                    </p>
+                                    <div className="flex flex-wrap gap-4 text-xs text-neutral-400 pt-1">
                                         <div className="flex items-center gap-1">
-                                            <Phone className="w-3 h-3" />
-                                            {res.visitorPhone || (res as any).visitor_phone}
+                                            <Mail className="w-3 h-3" />
+                                            {visitorEmail}
                                         </div>
-                                    ) : null}
-                                    <div className="flex items-center gap-1">
-                                        <Calendar className="w-3 h-3" />
-                                        {new Date(res.createdAt || (res as any).created_at).toLocaleDateString()}
+                                        {visitorPhone ? (
+                                            <div className="flex items-center gap-1">
+                                                <Phone className="w-3 h-3" />
+                                                {visitorPhone}
+                                            </div>
+                                        ) : null}
+                                        <div className="flex items-center gap-1">
+                                            <Calendar className="w-3 h-3" />
+                                            {createdAt ? new Date(createdAt).toLocaleDateString() : 'N/A'}
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
 
-                            {/* Actions */}
-                            <div className="flex gap-2">
-                                <a
-                                    href={`mailto:${res.visitorEmail || (res as any).visitor_email}?subject=Concerning your interest in ${(res.artworks as any)?.title}`}
-                                    className="p-2 bg-black text-white rounded-lg hover:bg-neutral-800 transition-colors"
-                                    title="Contact via Email"
-                                >
-                                    <Mail className="w-4 h-4" />
-                                </a>
-                                <button
-                                    onClick={() => handleDelete(res.id)}
-                                    className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors"
-                                    title="Delete Request"
-                                >
-                                    <Trash2 className="w-4 h-4" />
-                                </button>
+                                {/* Actions */}
+                                <div className="flex gap-2">
+                                    <a
+                                        href={`mailto:${visitorEmail}?subject=Concerning your interest in ${artwork?.title}`}
+                                        className="p-2 bg-black text-white rounded-lg hover:bg-neutral-800 transition-colors"
+                                        title="Contact via Email"
+                                    >
+                                        <Mail className="w-4 h-4" />
+                                    </a>
+                                    <button
+                                        onClick={() => handleDelete(res.id)}
+                                        className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors"
+                                        title="Delete Request"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    ))}
+                        );
+                    })}
                 </div>
             )}
         </div>

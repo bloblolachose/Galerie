@@ -164,6 +164,24 @@ export default function GalleryPage() {
             />
           </>
         )}
+
+        {/* Status Badge Over Image (Top Right) */}
+        {currentArtwork.status && currentArtwork.status !== 'available' && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="absolute top-24 right-8 z-30"
+          >
+            <div className={cn(
+              "px-4 py-2 rounded-full text-xs font-bold uppercase tracking-[0.2em] shadow-2xl backdrop-blur-md border",
+              currentArtwork.status === 'sold'
+                ? "bg-red-500/90 text-white border-red-400"
+                : "bg-orange-500/90 text-black border-orange-400"
+            )}>
+              {currentArtwork.status === 'sold' ? 'Vendu' : 'Réservé'}
+            </div>
+          </motion.div>
+        )}
       </div>
 
       {/* Footer / Metadata - Minimalist */}

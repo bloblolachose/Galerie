@@ -189,6 +189,19 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
                                                 loading="lazy"
                                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                                             />
+                                            {/* Status Badge Overlay */}
+                                            {artwork.status && artwork.status !== 'available' && (
+                                                <div className="absolute inset-0 flex items-center justify-center bg-black/5">
+                                                    <div className={cn(
+                                                        "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-lg",
+                                                        artwork.status === 'sold'
+                                                            ? "bg-red-500 text-white"
+                                                            : "bg-orange-500 text-black"
+                                                    )}>
+                                                        {artwork.status === 'sold' ? 'Vendu' : 'Réservé'}
+                                                    </div>
+                                                </div>
+                                            )}
                                             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors" />
                                             <div className="absolute bottom-0 left-0 right-0 p-3 translate-y-full group-hover:translate-y-0 transition-transform duration-300 bg-white">
                                                 <div className="text-xs font-medium truncate">{artwork.title}</div>

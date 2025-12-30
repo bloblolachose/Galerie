@@ -50,19 +50,12 @@ export default function DashboardLayout({
                     <Link
                         href="/admin/dashboard/reservations"
                         className={cn(
-                            "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group text-sm font-medium",
-                            pathname === "/admin/dashboard/reservations"
-                                ? "bg-white text-black shadow-lg shadow-black/5"
-                                : "text-neutral-400 hover:text-black hover:bg-neutral-100"
+                            "flex items-center gap-3 px-3 py-2 md:px-4 md:py-3 rounded-lg text-sm font-medium transition-colors",
+                            pathname === "/admin/dashboard/reservations" ? "bg-white text-black" : "text-neutral-400 hover:text-white hover:bg-white/5"
                         )}
                     >
-                        <div className={cn(
-                            "p-2 rounded-lg transition-colors",
-                            pathname === "/admin/dashboard/reservations" ? "bg-black text-white" : "bg-white border border-neutral-200 group-hover:border-neutral-300"
-                        )}>
-                            <Mail className="w-4 h-4" />
-                        </div>
-                        Inbox / Reservations
+                        <Mail className="w-5 h-5" />
+                        <span className="hidden md:inline">Reservations</span>
                     </Link>
                     <Link
                         href="/admin/dashboard/artworks"
