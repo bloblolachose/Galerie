@@ -8,7 +8,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 export function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
     const chat = (useChat() as any) || {};
-    const { messages = [], input, handleInputChange, handleSubmit, isLoading } = chat;
+    const {
+        messages = [],
+        input = "",
+        handleInputChange = () => { },
+        handleSubmit = (e: any) => { e?.preventDefault(); },
+        isLoading = false,
+        error = null
+    } = chat;
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -77,6 +84,12 @@ export function ChatWidget() {
                                         <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce delay-150" />
                                         <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce delay-300" />
                                     </div>
+                                </div>
+                            )}
+                            {error && (
+                                <div className="text-center p-4 bg-red-50 text-red-600 text-xs rounded-lg">
+                                    <p>Connection Error: {error.message || "Unknown error"}</p>
+                                    <p>Check API Key configuration.</p>
                                 </div>
                             )}
                             <div ref={messagesEndRef} />
