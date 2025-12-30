@@ -47,35 +47,49 @@ export default function ReservationsPage() {
     }, []);
 
     const handleDelete = async (id: string) => {
-        if (!confirm("Voulez-vous vraiment supprimer cette demande ?\nCela remettra l'œuvre en 'Disponible' dans la galerie.")) return;
+        const resToDelete = reservations.find((r: any) => r.id === id);
+        if (!resToDelete) return;
 
-        // Get the reservation to find the artwork_id
-        const resToDelete = reservations.find(r => r.id === id);
-        const artworkId = resToDelete?.artworkId || (resToDelete as any)?.artwork_id;
+        if (!confirm(`Voulez-vous vraiment supprimer la demande de ${resToDelete.visitor_name || resToDelete.visitorName} ?\nL'œuvre repassera en 'Disponible'.`)) return;
 
-        if (artworkId) {
-            // 1. Reset artwork status
-            const { error: resetError } = await supabase
-                .from('artworks')
-                .update({ status: 'available' })
-                .eq('id', artworkId);
+        setLoading(true);
+        const artworkId = (resToDelete as any).artwork_id || resToDelete.artworkId;
 
-            if (resetError) {
-                console.error("Error resetting status:", resetError);
+        console.log("Artiste / Artwork ID to reset:", artworkId);
+
+        try {
+            if (artworkId) {
+                // 1. Reset artwork status to 'available'
+                const { error: resetError } = await supabase
+                    .from('artworks')
+                    .update({ status: 'available' })
+                    .eq('id', artworkId);
+
+                if (resetError) {
+                    console.error("Error resetting status:", resetError);
+                    toast.error("Erreur lors de la remise en disponibilité de l'œuvre");
+                } else {
+                    console.log("Artwork status reset to available");
+                }
             }
-        }
 
-        // 2. Delete the reservation
-        const { error } = await supabase
-            .from('reservations')
-            .delete()
-            .eq('id', id);
+            // 2. Delete the reservation
+            const { error } = await supabase
+                .from('reservations')
+                .delete()
+                .eq('id', id);
 
-        if (error) {
-            toast.error("Échec de la suppression");
-        } else {
-            toast.success("Demande supprimée et œuvre libérée");
-            fetchReservations();
+            if (error) {
+                toast.error("Échec de la suppression de la demande");
+            } else {
+                toast.success("Demande supprimée. L'œuvre est de nouveau disponible !");
+                fetchReservations();
+            }
+        } catch (err) {
+            console.error("Delete Flow Error:", err);
+            toast.error("Une erreur est survenue");
+        } finally {
+            setLoading(false);
         }
     };
 
