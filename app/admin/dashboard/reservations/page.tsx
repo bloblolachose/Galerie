@@ -53,9 +53,9 @@ export default function ReservationsPage() {
         if (!confirm(`Voulez-vous vraiment supprimer la demande de ${resToDelete.visitor_name || resToDelete.visitorName} ?\nL'œuvre repassera en 'Disponible'.`)) return;
 
         setLoading(true);
-        const artworkId = (resToDelete as any).artwork_id || resToDelete.artworkId;
+        const artworkId = (resToDelete as any).artwork_id || resToDelete.artworkId || (resToDelete as any).artworks?.id;
 
-        console.log("Artiste / Artwork ID to reset:", artworkId);
+        console.log("Artwork ID to reset:", artworkId);
 
         try {
             if (artworkId) {
