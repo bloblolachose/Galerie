@@ -7,7 +7,27 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
-    const chat = (useChat() as any) || {};
+    const [debugStatus, setDebugStatus] = useState<string>("Ready");
+
+    const chat = (useChat({
+        api: '/api/chat',
+        onError: (err) => {
+            console.error("Chat Error:", err);
+            setDebugStatus(`Error: ${err.message}`);
+        },
+        onResponse: (response) => {
+            console.log("Response received:", response);
+            if (!response.ok) {
+                setDebugStatus(`Server Error: ${response.status} ${response.statusText}`);
+            } else {
+                setDebugStatus("Receiving stream...");
+            }
+        },
+        onFinish: () => {
+            setDebugStatus("Ready (Last msg received)");
+        }
+    }) as any) || {};
+
     const {
         messages = [],
         input = "",
@@ -40,10 +60,17 @@ export function ChatWidget() {
         // Optimistically clear input
         const message = localInput;
         setLocalInput("");
+        setDebugStatus("Sending...");
 
-        // Send to chat hook
-        if (append) {
-            await append({ role: 'user', content: message });
+        try {
+            // Send to chat hook
+            if (append) {
+                await append({ role: 'user', content: message });
+            } else {
+                setDebugStatus("Error: Append function missing");
+            }
+        } catch (err: any) {
+            setDebugStatus(`Client Error: ${err.message}`);
         }
     };
 
@@ -65,7 +92,7 @@ export function ChatWidget() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-sm">Gallery Guide</h3>
-                                    <p className="text-[10px] text-neutral-500">Powered by Mistral AI</p>
+                                    <p className="text-[10px] text-neutral-500">Status: {debugStatus}</p>
                                 </div>
                             </div>
                             <button
@@ -109,8 +136,8 @@ export function ChatWidget() {
                             )}
                             {error && (
                                 <div className="text-center p-4 bg-red-50 text-red-600 text-xs rounded-lg">
-                                    <p>Connection Error: {error.message || "Unknown error"}</p>
-                                    <p>Check API Key configuration.</p>
+                                    <p className="font-bold">Error Details:</p>
+                                    <p>{error.message || JSON.stringify(error)}</p>
                                 </div>
                             )}
                             <div ref={messagesEndRef} />
