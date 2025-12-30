@@ -128,7 +128,7 @@ export function useExhibition(id: string) {
 }
 
 export function useActiveExhibition() {
-    const [exhibition, setExhibition] = useState<Exhibition | null>(null);
+    const [exhibition, setExhibition] = useState<Exhibition | null | undefined>(undefined);
     const version = useSyncStore(s => s.version);
 
     useEffect(() => {
@@ -157,6 +157,8 @@ export function useActiveExhibition() {
                     (exh as any).artworks = [];
                 }
                 setExhibition(exh);
+            } else {
+                setExhibition(null);
             }
         };
 
