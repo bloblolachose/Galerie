@@ -77,7 +77,7 @@ export function ChatWidget() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-sm">Gallery Guide</h3>
-                                    <p className="text-[10px] text-neutral-500">Status (v4.0 JSON): {debugStatus}</p>
+                                    <p className="text-[10px] text-neutral-500">Ask me anything</p>
                                 </div>
                             </div>
                             <button
