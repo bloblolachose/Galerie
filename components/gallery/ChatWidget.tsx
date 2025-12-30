@@ -11,6 +11,7 @@ export function ChatWidget() {
 
     const chat = (useChat({
         api: '/api/chat',
+        streamProtocol: 'text',
         onError: (err: any) => {
             console.error("Chat Error:", err);
             setDebugStatus(`Error: ${err.message}`);
