@@ -21,18 +21,31 @@ export async function POST(req: Request) {
         // Get active exhibition
         const { data: exhibitions, error: dbError } = await supabase
             .from('exhibitions')
-            .select('*, artworks(*)')
+            .select('*')
             .eq('is_active', true)
             .limit(1);
 
         if (dbError) throw dbError;
 
         const activeExhibition = exhibitions?.[0];
+        let artworkDetails = [];
+
+        // Manually fetch artworks if exhibition exists and has IDs
+        if (activeExhibition && activeExhibition.artwork_ids && activeExhibition.artwork_ids.length > 0) {
+            const { data: artworks, error: artError } = await supabase
+                .from('artworks')
+                .select('*')
+                .in('id', activeExhibition.artwork_ids);
+
+            if (!artError && artworks) {
+                artworkDetails = artworks;
+            }
+        }
 
         let systemPrompt = "You are a knowledgeable and elegant art gallery assistant. Answer questions briefly and politely.";
 
         if (activeExhibition) {
-            const artworkList = activeExhibition?.artworks?.map((a: any) =>
+            const artworkList = artworkDetails.map((a: any) =>
                 `- "${a.title}" by ${a.artist} (${a.year}): ${a.description}`
             ).join('\n') || "No artworks details available.";
 
