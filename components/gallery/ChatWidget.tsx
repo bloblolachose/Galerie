@@ -7,36 +7,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export function ChatWidget() {
     const [isOpen, setIsOpen] = useState(false);
-    const [debugStatus, setDebugStatus] = useState<string>("Ready");
-
-    const chat = (useChat({
-        api: '/api/chat',
-        streamProtocol: 'text',
-        onError: (err: any) => {
-            console.error("Chat Error:", err);
-            setDebugStatus(`Error: ${err.message}`);
-        },
-        onResponse: (response: any) => {
-            console.log("Response received:", response);
-            if (!response.ok) {
-                setDebugStatus(`Server Error: ${response.status} ${response.statusText}`);
-            } else {
-                setDebugStatus("Receiving stream...");
-            }
-        },
-        onFinish: () => {
-            setDebugStatus("Ready (Last msg received)");
-        }
-    } as any) as any) || {};
-
-    const {
-        messages = [],
-        input = "",
-        handleInputChange = () => { },
-        handleSubmit = (e: any) => { e?.preventDefault(); },
-        isLoading = false,
-        error = null
-    } = chat;
+    const [debugStatus, setDebugStatus] = useState<string>("Ready (Manual Mode)");
+    const [messages, setMessages] = useState<any[]>([]);
+    const [isLoading, setIsLoading] = useState(false);
+    const [localInput, setLocalInput] = useState("");
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
     const scrollToBottom = () => {
@@ -47,34 +21,54 @@ export function ChatWidget() {
         scrollToBottom();
     }, [messages]);
 
-
-    const [localInput, setLocalInput] = useState("");
-
-    // Identify the correct function to send message
-    // Runtime logs showed 'append' might be missing but 'sendMessage' exists
-    const sendMessageFn = chat.append || chat.sendMessage;
-
-    // Manual submit handler
     const handleLocalSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!localInput.trim() || isLoading) return;
 
-        // Optimistically clear input
-        const message = localInput;
+        const userMsg = { id: Date.now().toString(), role: 'user', content: localInput };
+        setMessages(prev => [...prev, userMsg]);
         setLocalInput("");
+        setIsLoading(true);
         setDebugStatus("Sending...");
 
         try {
-            // Send to chat hook
-            if (sendMessageFn) {
-                setDebugStatus(chat.append ? "Sending with append..." : "Sending with sendMessage...");
-                await sendMessageFn({ role: 'user', content: message });
-            } else {
-                const keys = Object.keys(chat).join(", ");
-                setDebugStatus(`Error: No send text function. Keys: ${keys}`);
+            const response = await fetch('/api/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ messages: [...messages, userMsg] })
+            });
+
+            if (!response.ok) throw new Error(`Server error: ${response.status}`);
+            if (!response.body) throw new Error("No response body");
+
+            setDebugStatus("Receiving stream...");
+
+            // Create placeholder for bot message
+            const botMsgId = (Date.now() + 1).toString();
+            setMessages(prev => [...prev, { id: botMsgId, role: 'assistant', content: '' }]);
+
+            const reader = response.body.getReader();
+            const decoder = new TextDecoder();
+            let accumulatedContent = "";
+
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+
+                const chunk = decoder.decode(value, { stream: true });
+                accumulatedContent += chunk;
+
+                setMessages(prev => prev.map(m =>
+                    m.id === botMsgId ? { ...m, content: accumulatedContent } : m
+                ));
             }
+
+            setDebugStatus("Ready (Finished)");
         } catch (err: any) {
-            setDebugStatus(`Client Error: ${err.message}`);
+            console.error("Chat Error:", err);
+            setDebugStatus(`Error: ${err.message}`);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -96,10 +90,7 @@ export function ChatWidget() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-sm">Gallery Guide</h3>
-                                    <p className="text-[10px] text-neutral-500">
-                                        Status (v2.6): {debugStatus} <br />
-                                        Bot: {messages.filter((m: any) => m.role !== 'user').pop()?.content.slice(0, 10) || "missing"}
-                                    </p>
+                                    <p className="text-[10px] text-neutral-500">Status (v3.0): {debugStatus}</p>
                                 </div>
                             </div>
                             <button
@@ -132,19 +123,13 @@ export function ChatWidget() {
                                     </div>
                                 </div>
                             ))}
-                            {isLoading && (
+                            {isLoading && messages[messages.length - 1]?.role === 'user' && ( // Show bounce only if waiting for first byte
                                 <div className="flex justify-start">
                                     <div className="bg-neutral-100 p-3 rounded-2xl rounded-bl-none flex gap-1">
                                         <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce delay-0" />
                                         <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce delay-150" />
                                         <div className="w-2 h-2 bg-neutral-400 rounded-full animate-bounce delay-300" />
                                     </div>
-                                </div>
-                            )}
-                            {error && (
-                                <div className="text-center p-4 bg-red-50 text-red-600 text-xs rounded-lg">
-                                    <p className="font-bold">Error Details:</p>
-                                    <p>{error.message || JSON.stringify(error)}</p>
                                 </div>
                             )}
                             <div ref={messagesEndRef} />

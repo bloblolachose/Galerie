@@ -68,22 +68,13 @@ INSTRUCTIONS:
 `;
         }
 
-        // Debug Ping
-        const lastMessage = messages[messages.length - 1];
-        if (lastMessage.content.trim().toLowerCase() === 'ping') {
-            return new Response("pong", {
-                headers: { 'Content-Type': 'text/plain' }
-            });
-        }
-
         const result = await streamText({
             model: mistral('mistral-large-latest'),
             system: systemPrompt,
             messages,
         });
 
-        // Helper methods are missing, so we stream the baseStream directly
-        // Client is configured with streamProtocol: 'text'
+        // Return raw stream
         return new Response((result as any).baseStream, {
             headers: {
                 'Content-Type': 'text/plain; charset=utf-8',
