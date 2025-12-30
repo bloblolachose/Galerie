@@ -1,8 +1,9 @@
 import { mistral } from '@ai-sdk/mistral';
-import { streamText } from 'ai';
+import { generateText } from 'ai';
 import { createClient } from '@supabase/supabase-js';
+import { NextResponse } from 'next/server';
 
-// Allow streaming responses up to 30 seconds
+// Allow responses up to 30 seconds
 export const maxDuration = 30;
 
 export async function POST(req: Request) {
@@ -68,19 +69,22 @@ INSTRUCTIONS:
 `;
         }
 
-        const result = await streamText({
+
+        const lastMessage = messages[messages.length - 1];
+        // Debug Ping
+        if (lastMessage.content.trim().toLowerCase() === 'ping') {
+            return NextResponse.json({ text: "pong" });
+        }
+
+        const { text } = await generateText({
             model: mistral('mistral-large-latest'),
             system: systemPrompt,
             messages,
         });
 
-        // Return raw stream
-        return new Response((result as any).baseStream, {
-            headers: {
-                'Content-Type': 'text/plain; charset=utf-8',
-                'X-Content-Type-Options': 'nosniff'
-            }
-        });
+        // Return simple JSON
+        return NextResponse.json({ text });
+
     } catch (error: any) {
         console.error("API Error:", error);
         return new Response(JSON.stringify({ error: error.message || "Unknown server error" }), { status: 500 });

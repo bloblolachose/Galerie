@@ -39,29 +39,16 @@ export function ChatWidget() {
             });
 
             if (!response.ok) throw new Error(`Server error: ${response.status}`);
-            if (!response.body) throw new Error("No response body");
 
-            setDebugStatus("Receiving stream...");
+            setDebugStatus("Waiting for response...");
 
-            // Create placeholder for bot message
+            const data = await response.json();
+
+            if (data.error) throw new Error(data.error);
+
+            // Add bot message
             const botMsgId = (Date.now() + 1).toString();
-            setMessages(prev => [...prev, { id: botMsgId, role: 'assistant', content: '' }]);
-
-            const reader = response.body.getReader();
-            const decoder = new TextDecoder();
-            let accumulatedContent = "";
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-
-                const chunk = decoder.decode(value, { stream: true });
-                accumulatedContent += chunk;
-
-                setMessages(prev => prev.map(m =>
-                    m.id === botMsgId ? { ...m, content: accumulatedContent } : m
-                ));
-            }
+            setMessages(prev => [...prev, { id: botMsgId, role: 'assistant', content: data.text }]);
 
             setDebugStatus("Ready (Finished)");
         } catch (err: any) {
@@ -90,7 +77,7 @@ export function ChatWidget() {
                                 </div>
                                 <div>
                                     <h3 className="font-bold text-sm">Gallery Guide</h3>
-                                    <p className="text-[10px] text-neutral-500">Status (v3.0): {debugStatus}</p>
+                                    <p className="text-[10px] text-neutral-500">Status (v4.0 JSON): {debugStatus}</p>
                                 </div>
                             </div>
                             <button
