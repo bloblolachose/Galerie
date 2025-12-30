@@ -68,6 +68,12 @@ INSTRUCTIONS:
 `;
         }
 
+        // Debug Ping
+        const lastMessage = messages[messages.length - 1];
+        if (lastMessage.content.trim().toLowerCase() === 'ping') {
+            systemPrompt = "You are a ping-pong machine. Respond with 'pong' and nothing else.";
+        }
+
         const result = streamText({
             model: mistral('mistral-large-latest'),
             system: systemPrompt,
