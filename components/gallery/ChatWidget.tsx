@@ -101,6 +101,7 @@ export function ChatWidget() {
                                 value={input}
                                 onChange={handleInputChange}
                                 placeholder="Ask a question..."
+                                style={{ userSelect: 'text', WebkitUserSelect: 'text', touchAction: 'manipulation' }}
                                 className="flex-1 bg-neutral-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black/10"
                             />
                             <button
