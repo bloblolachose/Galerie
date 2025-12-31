@@ -134,7 +134,7 @@ export function ArtistManager({ artists, artworks = [], onUpdate, onUploadImage,
                             </div>
                             <div className="flex-1 min-w-0">
                                 <h4 className="font-medium text-white truncate">{artist.name}</h4>
-                                <p className="text-xs text-neutral-400 truncate">{artist.bio || "No bio"}</p>
+                                <p className="text-xs text-neutral-400 line-clamp-2 whitespace-pre-wrap break-words">{artist.bio || "No bio"}</p>
                             </div>
                             <div className="flex items-center gap-2">
                                 <button

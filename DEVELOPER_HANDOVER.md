@@ -44,6 +44,14 @@
     - Added "Réserver" button and modal to the gallery.
     - Created Admin Inbox to manage reservation requests.
     - Updated RLS policies to allow public reservation submissions and status updates.
+    - Added "Release" button and robust error handling for reservation deletion.
+- **Performance Tuning:**
+    - Optimized `HomeMenu` closing animation (Removed heavy scale transform for smoother exit).
+- **Design Refresh (Phase 9 - "Maison d'Art"):**
+    - **Color Palette:** Updated to "Warm Cream" (`#F9F9F7`) background with Charcoal text.
+    - **Typography:** Retained original Oswald/Inter per user request (Hybrid approach).
+- **Build Stability:**
+    - Fixed TypeScript error in `reservations/page.tsx` (`visitor_name` property).
 
 ## 🧠 Memory Persistence (Important)
 If you start a new session or I seem to "forget" the context:
