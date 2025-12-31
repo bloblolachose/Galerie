@@ -7,12 +7,12 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 const oswald = Oswald({ subsets: ["latin"], variable: "--font-oswald" });
 
 export const metadata: Metadata = {
-  title: "Art Gallery",
-  description: "Premium Digital Gallery Experience",
+  title: "Galerie Kohl",
+  description: "Collection d'Art Contemporain",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Gallery",
+    title: "Galerie",
   },
   formatDetection: {
     telephone: false,

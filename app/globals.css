@@ -57,39 +57,44 @@
 }
 
 :root {
-  /* Apple Minimalist / White Theme (Matches "Villa Sonneville" logo) */
-  --background: 0 0% 100%;
-  /* Pure White */
-  --foreground: 0 0% 0%;
-  /* Pure Black */
+  /* "Maison d'Art" Theme - Warm Minimalist */
 
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 11%;
+  /* Warm Cream Background (#F9F9F7) */
+  --background: 40 11% 97%;
 
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 11%;
+  /* Charcoal Text (#1A1A1A) */
+  --foreground: 0 0% 10%;
 
-  --primary: 0 0% 11%;
-  --primary-foreground: 0 0% 100%;
+  --card: 40 11% 97%;
+  --card-foreground: 0 0% 10%;
 
-  --secondary: 0 0% 96.1%;
-  --secondary-foreground: 0 0% 11%;
+  --popover: 40 11% 97%;
+  --popover-foreground: 0 0% 10%;
 
-  --muted: 0 0% 96.1%;
-  --muted-foreground: 0 0% 45.1%;
+  /* Soft Black Primary */
+  --primary: 0 0% 10%;
+  --primary-foreground: 40 11% 97%;
 
-  --accent: 0 0% 96.1%;
-  --accent-foreground: 0 0% 11%;
+  --secondary: 40 5% 90%;
+  --secondary-foreground: 0 0% 10%;
+
+  --muted: 40 5% 90%;
+  --muted-foreground: 0 0% 40%;
+
+  --accent: 40 5% 90%;
+  --accent-foreground: 0 0% 10%;
 
   --destructive: 0 84.2% 60.2%;
   --destructive-foreground: 0 0% 98%;
 
-  --border: 0 0% 89.8%;
-  --input: 0 0% 89.8%;
-  --ring: 0 0% 11%;
+  /* Softer Borders (#E5E5E0 approx) */
+  --border: 40 5% 85%;
+  --input: 40 5% 85%;
 
-  --radius: 1rem;
-  /* Soft corners */
+  --ring: 0 0% 10%;
+
+  --radius: 0.75rem;
+  /* Slightly tighter radius for elegance */
 }
 
 @layer base {

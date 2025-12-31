@@ -153,8 +153,8 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
 
                                 {activeBio && (
                                     <div className="prose prose-neutral prose-lg">
-                                        <h3 className="text-lg font-bold font-oswald uppercase">{activeSubtitle} Bio</h3>
-                                        <p className="text-neutral-600 leading-relaxed font-sans text-base">
+                                        <h3 className="text-lg font-bold font-oswald uppercase track-widest text-neutral-400 mb-2">{activeSubtitle} Bio</h3>
+                                        <p className="text-neutral-800 leading-loose font-oswald text-xl font-light">
                                             {activeBio}
                                         </p>
                                     </div>
@@ -181,13 +181,13 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
                                         <button
                                             key={artwork.id}
                                             onClick={() => onNavigate(globalIndex)}
-                                            className="group relative aspect-square bg-neutral-100 rounded-lg overflow-hidden transition-transform hover:-translate-y-1 hover:shadow-lg text-left"
+                                            className="group relative aspect-square bg-neutral-50 overflow-hidden text-left"
                                         >
                                             <img
                                                 src={artwork.imageUrl}
                                                 alt={artwork.title}
                                                 loading="lazy"
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                                                className="w-full h-full object-cover transition-all duration-700 ease-out group-hover:scale-105 group-hover:opacity-90"
                                             />
                                             {/* Status Badge Overlay */}
                                             {artwork.status && artwork.status !== 'available' && (
