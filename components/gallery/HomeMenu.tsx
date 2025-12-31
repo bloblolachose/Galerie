@@ -62,8 +62,8 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
         <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.2, ease: "circOut" }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             style={{ willChange: "transform, opacity" }}
             className="fixed inset-0 z-50 bg-white overflow-y-auto"
         >
