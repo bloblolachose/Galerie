@@ -28,7 +28,7 @@ export default function ReservationsPage() {
         console.log("Fetching reservations...");
         const { data, error } = await supabase
             .from('reservations')
-            .select('*, artworks(title, image_url)')
+            .select('*, artworks(id, title, image_url)')
             .order('created_at', { ascending: false });
 
         if (error) {
@@ -91,6 +91,24 @@ export default function ReservationsPage() {
         } finally {
             setLoading(false);
         }
+    };
+
+    const releaseArtwork = async (artworkId: string) => {
+        if (!artworkId) return;
+        setLoading(true);
+        const { error } = await supabase
+            .from('artworks')
+            .update({ status: 'available' })
+            .eq('id', artworkId);
+
+        if (error) {
+            console.error("Release Error:", error);
+            toast.error("Erreur: Impossible de libérer l'œuvre");
+        } else {
+            toast.success("Œuvre libérée (Disponible)");
+            fetchReservations(); // Refresh to update UI if needed (though reservation list doesn't show art status directly in this view, it's good practice)
+        }
+        setLoading(false);
     };
 
     return (
@@ -172,6 +190,13 @@ export default function ReservationsPage() {
                                     >
                                         <Mail className="w-4 h-4" />
                                     </a>
+                                    <button
+                                        onClick={() => releaseArtwork((artwork as any)?.id)}
+                                        className="p-2 bg-orange-50 text-orange-500 rounded-lg hover:bg-orange-100 transition-colors"
+                                        title="Libérer l'œuvre (Remettre en disponible)"
+                                    >
+                                        <Archive className="w-4 h-4" />
+                                    </button>
                                     <button
                                         onClick={() => handleDelete(res.id)}
                                         className="p-2 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors"
