@@ -127,11 +127,13 @@ export function ChatWidget() {
                             <input
                                 value={localInput}
                                 onChange={(e) => setLocalInput(e.target.value)}
-                                onTouchStart={(e) => e.stopPropagation()}
-                                onMouseDown={(e) => e.stopPropagation()}
+                                onPointerDown={(e) => e.stopPropagation()}
                                 placeholder="Ask a question..."
+                                autoComplete="off"
+                                autoCapitalize="sentences"
+                                enterKeyHint="send"
                                 style={{ userSelect: 'text', WebkitUserSelect: 'text', touchAction: 'manipulation' }}
-                                className="flex-1 bg-neutral-100 text-black rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black/10"
+                                className="flex-1 bg-neutral-100 text-black rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-black/10 select-text cursor-text"
                             />
                             <button
                                 type="submit"
