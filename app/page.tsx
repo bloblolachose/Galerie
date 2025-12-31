@@ -131,12 +131,10 @@ export default function GalleryPage() {
             {/* Frameless Image Container */}
             <motion.div
               layout
-              initial={{ padding: "2rem" }} // p-8 equivalent
-              animate={{
-                padding: isExpanded ? "0rem" : (window.innerWidth >= 768 ? "8rem" : "2rem") // 0 or p-32/p-8
-              }}
-              transition={{ duration: 0.6, ease: [0.32, 0.72, 0, 1] }} // Apple-style ease
-              className="w-full h-full flex items-center justify-center pointer-events-auto"
+              className={cn(
+                "w-full h-full flex items-center justify-center pointer-events-auto transition-[padding] duration-700 ease-[cubic-bezier(0.32,0.72,0,1)]",
+                isExpanded ? "p-0" : "p-8 md:p-32"
+              )}
               onClick={() => setIsExpanded(!isExpanded)}
             >
               <div className={cn("relative w-full h-full flex items-center justify-center transition-transform", isExpanded ? "cursor-auto" : "cursor-zoom-in")}>
@@ -213,10 +211,14 @@ export default function GalleryPage() {
         </button>
       </div>
 
-      {/* Detailed Info Drawer - Apple Style (Floating Card) */}
+      {/* Detailed Info Drawer - Adaptive (Bottom Sheet on Mobile / Floating Card on Desktop) */}
       <div className={cn(
-        "absolute bottom-28 right-8 w-full md:max-w-sm bg-white/90 backdrop-blur-xl rounded-3xl p-6 shadow-2xl transition-all duration-500 z-50 origin-bottom-right transform",
-        showInfo ? "opacity-100 scale-100 translate-y-0" : "opacity-0 scale-95 translate-y-4 pointer-events-none"
+        "absolute z-50 bg-white/90 backdrop-blur-xl shadow-2xl transition-all duration-500 origin-bottom transform",
+        // Mobile: Bottom Sheet
+        "bottom-0 left-0 w-full rounded-t-3xl p-6 pb-12",
+        // Desktop: Floating Card
+        "md:max-w-sm md:bottom-28 md:right-8 md:left-auto md:rounded-3xl md:p-6",
+        showInfo ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 pointer-events-none md:translate-y-4"
       )}>
         <div className="space-y-6">
           <div className="grid grid-cols-2 gap-y-4 gap-x-8 text-sm">
@@ -236,7 +238,7 @@ export default function GalleryPage() {
 
           <div className="pt-4 border-t border-neutral-100">
             <div className="text-neutral-400 text-xs uppercase tracking-wide mb-2">About</div>
-            <p className="text-neutral-600 leading-relaxed text-sm whitespace-pre-wrap">
+            <p className="text-neutral-600 leading-relaxed text-sm whitespace-pre-wrap max-h-40 overflow-y-auto">
               {currentArtwork.description ? currentArtwork.description : "No description available."}
             </p>
           </div>
