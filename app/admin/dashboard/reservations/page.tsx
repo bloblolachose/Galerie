@@ -50,7 +50,7 @@ export default function ReservationsPage() {
         const resToDelete = reservations.find((r: any) => r.id === id);
         if (!resToDelete) return;
 
-        if (!confirm(`Voulez-vous vraiment supprimer la demande de ${resToDelete.visitor_name || resToDelete.visitorName} ?\nL'œuvre repassera en 'Disponible'.`)) return;
+        if (!confirm(`Voulez-vous vraiment supprimer la demande de ${(resToDelete as any).visitor_name || resToDelete.visitorName} ?\nL'œuvre repassera en 'Disponible'.`)) return;
 
         setLoading(true);
         const artworkId = (resToDelete as any).artwork_id || resToDelete.artworkId || (resToDelete as any).artworks?.id;
