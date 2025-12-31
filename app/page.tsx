@@ -213,11 +213,11 @@ export default function GalleryPage() {
 
       {/* Detailed Info Drawer - Adaptive (Bottom Sheet on Mobile / Floating Card on Desktop) */}
       <div className={cn(
-        "absolute z-50 bg-white/90 backdrop-blur-xl shadow-2xl transition-all duration-500 origin-bottom transform",
-        // Mobile: Bottom Sheet
-        "bottom-0 left-0 w-full rounded-t-3xl p-6 pb-12",
-        // Desktop: Floating Card
-        "md:max-w-sm md:bottom-28 md:right-8 md:left-auto md:rounded-3xl md:p-6",
+        "absolute bg-white/90 backdrop-blur-xl shadow-2xl transition-all duration-500 origin-bottom transform",
+        // Mobile: Bottom Sheet (z-20 to sit BEHIND footer)
+        "z-20 bottom-0 left-0 w-full rounded-t-3xl p-6 pb-40 md:pb-6",
+        // Desktop: Floating Card (z-50 to sit ON TOP)
+        "md:z-50 md:max-w-sm md:bottom-28 md:right-8 md:left-auto md:rounded-3xl md:p-6",
         showInfo ? "translate-y-0 opacity-100" : "translate-y-full opacity-0 pointer-events-none md:translate-y-4"
       )}>
         <div className="space-y-6">
