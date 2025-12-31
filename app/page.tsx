@@ -185,25 +185,25 @@ export default function GalleryPage() {
       {/* Footer / Metadata - Minimalist */}
       {/* Hide footer in expanded mode for full immersion */}
       <div className={cn(
-        "flex-shrink-0 pt-6 pb-12 bg-white/80 backdrop-blur-md flex items-center justify-between px-8 relative z-30 shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)] transition-transform duration-500",
+        "flex-shrink-0 pt-6 pb-8 md:pb-12 bg-white/80 backdrop-blur-md flex flex-col md:flex-row md:items-center justify-between px-6 md:px-8 gap-4 relative z-30 shadow-[0_-5px_20px_-5px_rgba(0,0,0,0.05)] transition-transform duration-500",
         isExpanded ? "translate-y-full" : "translate-y-0"
       )}>
-        <div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4">
-          <h2 className="text-3xl uppercase font-oswald tracking-tight text-neutral-900">{currentArtwork.title}</h2>
-          <span className="text-neutral-500 font-normal font-sans tracking-wide">{currentArtwork.artist}</span>
+        <div className="flex flex-col md:flex-row md:items-baseline gap-1 md:gap-4 shrink-0">
+          <h2 className="text-2xl md:text-3xl uppercase font-oswald tracking-tight text-neutral-900 truncate">{currentArtwork.title}</h2>
+          <span className="text-sm md:text-base text-neutral-500 font-normal font-sans tracking-wide truncate">{currentArtwork.artist}</span>
         </div>
 
         <button
           onClick={() => setShowInfo(!showInfo)}
           className={cn(
-            "px-8 py-3 rounded-full font-oswald text-xl uppercase tracking-widest transition-all duration-300 flex items-center gap-3",
+            "w-full md:w-auto px-6 md:px-8 py-3 rounded-full font-oswald text-sm md:text-xl uppercase tracking-widest transition-all duration-300 flex items-center justify-center gap-3 shrink-0",
             showInfo ? "bg-neutral-900 text-white border border-neutral-900" : "bg-transparent text-neutral-900 border border-neutral-900 hover:bg-neutral-50"
           )}
         >
           {showInfo ? (
             <>
               <span>Close</span>
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 md:w-5 md:h-5" />
             </>
           ) : (
             <span>Information</span>
