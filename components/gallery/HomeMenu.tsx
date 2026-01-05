@@ -44,8 +44,8 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
         : artworks;
 
     // Determine Bio & Photo to show
-    // Priority: Selected Artist -> Exhibition Legacy Bio -> Hidden
-    const activeBio = currentArtist ? currentArtist.bio : exhibition.artistBio;
+    // Priority: Selected Artist -> Exhibition Description -> Hidden
+    const activeBio = currentArtist ? currentArtist.bio : exhibition.description;
     const activePhoto = currentArtist ? currentArtist.photoUrl : exhibition.artistPhotoUrl;
     const activeTitle = currentArtist ? currentArtist.name : exhibition.title;
     const activeSubtitle = currentArtist ? "Artist" : "Exhibition";
@@ -153,7 +153,9 @@ export function HomeMenu({ isOpen, onClose, exhibition, artworks, onNavigate }: 
 
                                 {activeBio && (
                                     <div className="prose prose-neutral prose-lg">
-                                        <h3 className="text-lg font-bold font-oswald uppercase track-widest text-neutral-400 mb-2">{activeSubtitle} Bio</h3>
+                                        <h3 className="text-lg font-bold font-oswald uppercase track-widest text-neutral-400 mb-2">
+                                            {currentArtist ? `${activeSubtitle} Bio` : "About the Exhibition"}
+                                        </h3>
                                         <p className="text-neutral-800 leading-loose font-oswald text-xl font-light">
                                             {activeBio}
                                         </p>

@@ -52,6 +52,10 @@
     - **Typography:** Retained original Oswald/Inter per user request (Hybrid approach).
 - **Build Stability:**
     - Fixed TypeScript error in `reservations/page.tsx` (`visitor_name` property).
+- **Mobile UX Refinements (iPhone):**
+    - **Footer**: Stacked layout + "Bottom Sheet" Info Drawer for better accessibility.
+    - **Chat**: Moved to Top-Right on mobile to avoid blocking controls.
+    - **Typography**: Fixed text overflow in Admin Artist lists.
 
 ## 🧠 Memory Persistence (Important)
 If you start a new session or I seem to "forget" the context:
